@@ -13,7 +13,9 @@ output:
 
 ## Subheading 1
 
-Here's some text
+This is the trial page for the rmarkdown site of the site.
+
+To return to the main page click [Here](https://benjburgess.github.io/)
 
 ```{r}
 # this is an example of a code block in R
