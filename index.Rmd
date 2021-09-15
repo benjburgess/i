@@ -1,0 +1,36 @@
+---
+title: "Rmarkdown files"
+output:
+  html_document:
+    fig_caption: yes
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+---
+
+# Homepage
+
+## Subheading 1
+
+Here's some text
+
+```{r}
+# this is an example of a code block in R
+```
+
+```{r class.source="bg-danger", class.output="bg-warning"}
+
+#this is an example of R code in different colours
+
+mtcars[1:5, "mpg"]
+```
+
+### Sub-subheading 2
+
+Here's a plot
+
+```{r}
+plot(-5:5)
+```
+
