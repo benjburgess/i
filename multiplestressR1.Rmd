@@ -11,16 +11,16 @@ output:
 
 
 
-# multiplestressR
 
-## Ben Burgess
 
-[Homepage](https://benjburgess.github.io/)
+
+[benjburgess.github.io](https://benjburgess.github.io/)
 
 [multiplestressR](https://benjburgess.github.io/multiplestressR)
 
+# Introductory Tutorial
 
-## Introduction
+## Introduction to `multiplestressR`
 
 One of the common aims of nearly all studies within multiple stressor ecology is to determine how co-occurring stressors combine to affect individuals, populations, or even entire ecological communities. Often, it is simply assumed that where more than one stressor affects a species, the combined effect of these stressors upon the species will simply be the sum of the individual effects. For instance, in the absence of any stressors there may be 100 individuals of *Daphnia pulex*. However, in the presence of a pesticide there may only 75 individuals, while an increase in temperature may reduce to population size to only 60 individuals. As such, if we sum the effects of the individual stressors (i.e., 100 + (75 - 100) + (60 - 100)), we would assume that in the presence of the pesticide and increased temperature, the population of *Daphnia pulex* would be reduced to 35 individuals. This expectation of stressor effects (based on an assumption of the additivity of their effects) is refered to as the *additive null model*. If this assumption is found to be met, then these stressors may be found as having an *additive* or *null* interaction. 
 
@@ -92,7 +92,7 @@ head(df)
 
 This data could correspond to any number of response metrics (e.g., growth or survival rates). However, it may be assumed that this generated dataset corresponds to population densities of a given species.
 
-As you can see, the dataframe contains data for eight interactions (rows) and twelve variables (columns), with three columns for each treatment(X_Control, X_StressorA, X_StressorB, X_StressorsAB). For each treatment, there is a column for treatment means (Mean_X), treatment standard deviation (Standard_Deviation_X), and treatment sample size (Sample_Size_X). It is important to note that any dataset must contain these three variables; means must be used (i.e., not medians or other metrics), standard deviation must be reported (i.e., not standard error or confidence intervals), and sample sizes must be reported.
+As you can see, the dataframe contains data for eight interactions (rows) and twelve variables (columns), with three columns for each treatment (X_Control, X_StressorA, X_StressorB, X_StressorsAB). For each treatment, there is a column for treatment means (Mean_X), treatment standard deviation (Standard_Deviation_X), and treatment sample size (Sample_Size_X). It is important to note that any dataset must contain these three variables; means must be used (i.e., not medians or other metrics), standard deviation must be reported (i.e., not standard error or confidence intervals), and sample sizes must be reported.
 
 
 ## Null models
@@ -285,6 +285,6 @@ Siviter, H., Bailes, E. J., Martin, C. D., Oliver, T. R., Koricheva, J., Leadbea
 
 ## Links
 
-[Homepage](https://benjburgess.github.io/)
+[benjburgess.github.io](https://benjburgess.github.io/)
 
 [multiplestressR](https://benjburgess.github.io/multiplestressR)
