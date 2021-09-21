@@ -1,5 +1,5 @@
 ---
-title: "Rmarkdown files"
+title: "Tutorials"
 output:
   html_document:
     fig_caption: yes
@@ -9,30 +9,20 @@ output:
     toc_float: yes
 ---
 
-# Homepage
+[benjburgess.github.io](https://benjburgess.github.io/)
 
-## Subheading 1
+Outlined below are all the tutorials currently written on various different topics.
 
-This is the trial page for the rmarkdown site of the site.
+Note that these will continue to be added over the coming weeks.
 
-To return to the main page click [Here](https://benjburgess.github.io/)
+## multiplestressR - R package
 
-```{r}
-# this is an example of a code block in R
-```
+### Introductory tutorial
 
-```{r class.source="bg-danger", class.output="bg-warning"}
+The [introductory tutorial](https://benjburgess.github.io/i/multiplestressR1) covers the basics of the `multiplestressR` package. Alongside the installation of this package, an example step-by-step work through is also provided. 
 
-#this is an example of R code in different colours
 
-mtcars[1:5, "mpg"]
-```
 
-### Sub-subheading 2
+## Links
 
-Here's a plot
-
-```{r}
-plot(-5:5)
-```
-
+[benjburgess.github.io](https://benjburgess.github.io/)
