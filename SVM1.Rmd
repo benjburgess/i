@@ -44,8 +44,6 @@ The next thing we need to do is load in the data. This will be from wherever you
 
 At this point we will also change some of the column names. In the original file there were blank spaces which `R` isn't a fan of. The following code will also convert any of these blank spaces to underscores.
 
-You can also embed plots, for example:
-
 ```{r class.source="bg-info", class.output="bg-success"}
 df <- fread("~/R_sandbox/Wine_Data_Kaggle.csv", data.table=FALSE)
 

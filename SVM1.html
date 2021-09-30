@@ -269,7 +269,6 @@ set.seed(754)</code></pre>
 <h2>Data loading</h2>
 <p>The next thing we need to do is load in the data. This will be from wherever you saved the data on your local machine and whatever you titled the file.</p>
 <p>At this point we will also change some of the column names. In the original file there were blank spaces which <code>R</code> isn't a fan of. The following code will also convert any of these blank spaces to underscores.</p>
-<p>You can also embed plots, for example:</p>
 <pre class="r bg-info"><code>df &lt;- fread(&quot;~/R_sandbox/Wine_Data_Kaggle.csv&quot;, data.table=FALSE)
 
 colnames(df) &lt;- gsub(&quot; &quot;, &quot;_&quot;, colnames(df))
@@ -698,7 +697,7 @@ cm</code></pre>
 </div>
 <div id="improving-the-svm" class="section level2">
 <h2>Improving the SVM</h2>
-<p>As we've shown from the model testing we have developed an SVm which does a good job of classifying wines into different qualities based on their chemical properties. However, we may wish to further improve the model. As detailed above, the main improvement we might wish to make is to increase the abilit of the SVM to accurately classify wines of qualities 5, 6, and 7. We may be able to achieve this by further tuning the SVM with an even narrower range of parameter values for cost and gamma, however we need to ensure that we are not going to overfit the model when doing this. Alternatively if we are only concerned about identifying wines of qualities 5, 6, and 7 then we might wish to rerun the entire analysis but solely focussing on these qualities. This will likely mean that any SVM will not be able to determine if a wine is of qualities 3, 4, or 8, but may instead accurately distinguish between the other qualities. While we have likewise encoded wine type within our dataset and analysis, we could always in theory split the dataset in two to only consider white or red wines.O =verall, improving the model is likely a trade-off between many different choices.</p>
+<p>As we've shown from the model testing we have developed an SVm which does a good job of classifying wines into different qualities based on their chemical properties. However, we may wish to further improve the model. As detailed above, the main improvement we might wish to make is to increase the abilit of the SVM to accurately classify wines of qualities 5, 6, and 7. We may be able to achieve this by further tuning the SVM with an even narrower range of parameter values for cost and gamma, however we need to ensure that we are not going to overfit the model when doing this. Alternatively if we are only concerned about identifying wines of qualities 5, 6, and 7 then we might wish to rerun the entire analysis but solely focussing on these qualities. This will likely mean that any SVM will not be able to determine if a wine is of qualities 3, 4, or 8, but may instead accurately distinguish between the other qualities. While we have likewise encoded wine type within our dataset and analysis, we could always in theory split the dataset in two to only consider white or red wines. Overall, improving the model is likely a trade-off between many different choices.</p>
 </div>
 <div id="concluding-remarks" class="section level2">
 <h2>Concluding remarks</h2>
