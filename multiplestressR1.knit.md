@@ -1,0 +1,537 @@
+---
+title: "multiplestressR - R Package"
+output:
+  html_document:
+    fig_caption: yes
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+---
+
+
+
+
+
+
+[benjburgess.github.io](https://benjburgess.github.io/)
+
+[multiplestressR](https://benjburgess.github.io/multiplestressR)
+
+# Introductory Tutorial
+
+## Introduction to `multiplestressR`
+
+One of the common aims of nearly all studies within multiple stressor ecology is to determine how co-occurring stressors combine to affect individuals, populations, or even entire ecological communities. Often, it is simply assumed that where more than one stressor affects a species, the combined effect of these stressors upon the species will simply be the sum of the individual effects. For instance, in the absence of any stressors there may be 100 individuals of *Daphnia pulex*. However, in the presence of a pesticide there may only 75 individuals, while an increase in temperature may reduce to population size to only 60 individuals. As such, if we sum the effects of the individual stressors (i.e., 100 + (75 - 100) + (60 - 100)), we would assume that in the presence of the pesticide and increased temperature, the population of *Daphnia pulex* would be reduced to 35 individuals. This expectation of stressor effects (based on an assumption of the additivity of their effects) is refered to as the *additive null model*. If this assumption is found to be met, then these stressors may be found as having an *additive* or *null* interaction. 
+
+However, it may be that in the presence of both stressors this assumption is not met. If the population size of *Daphnia pulex* is found to have been reduced by more than expected than the additive null model (e.g., only 20 individuals survive) then a *synergistic* interaction is said to be occurring. If the population size is reduced by less than expected by the additive null model (e.g., 50 individuals survive) then an *antagonistic* interaction is said to be occurring. In some cases it may be that stressors have an effect which diametrically opposes than expected by the additive null model (e.g., the null model predicts a decline in a population size, but under both stressors the population size actually increases). In such a situation a *reversal* interaction is said to be occurring. However, sometimes no distinction is made between antagonisitc and reversal interactions, with both being described as being an antagonistic interaction.
+
+Understanding how multiple stressors interact to affect ecosystems is crucial. Indeed, knowledge of stressor interactions is crucial when implementing conservation measures, as a failure to consider how stressors interact may render these actions ineffective. However, understading how stressors interact is very rarely easy. Ecological data is frequently noisy (i.e., high levels of variation) while ecological experiments often times have low numbers of replicates, meaning that the statistical power of any experiment may be low. As such, given these factors, the simple summing approach used in the above example is inappropriate for ecological data. Instead more complex statistical methods are required. These methods often require experiment to be conducted with four treatments in a factorial design (i.e., i) control conditions, ii) only stressor A, iii) only stressor B, and iv) both stressors A and B). According for each of these treatments, means (e.g., population densities, or survival rates), uncertainty (e.g., standard deviations), and the number of replicates per treatment are required. 
+
+With data on means, uncertainty, and numbers of replciates for each of the four treatments, it is possible to classify stressor interactions using either of the following approaches. The additive null model is implemented through the use of Hedges' d, while the multiplicative null model is implemented through the use of the response ratio. These statistical tools have been thoroughly documented elsewhere, and so the equations underpinning these null models will not be discussed more within this tutorial. However,for more information on these statistical tools see [Burgess et al. (2021a)](https://www.biorxiv.org/content/10.1101/2021.07.21.453207v1.abstract).
+
+However, while these detailed and rigorous methods allow researchers to classify interactions, many previous studies have implemented different or untested (and in some cases incorrect) versions of these null models. As such, these differences in methodologies may be responsible for the inconsistent results across studies in multiple stressor ecology.
+
+Accordingly, the `multiplestressR` R package has been developed to provide a simple way for researchers to implement either the additive or multiplicative null models upon their datasets. The package implements statistically rigorous versions of these null models, and can be conducted in a few lines of code. As such, this package allows those with minimal knowledge of *R*, or a limited understanding of the null models to statistically analyse their data. The `multiplestressR` package is appropriate for those researchers analysing data for single experiments, or those conducting meta-analyses.
+
+Outlined below is a step-by-step tutorial for analysing multiple stressor data using the `multiplestressR` package.
+
+Throughout this tutorial, R code is outlined in blue, successful output in green, and errors (or similar) in red.
+
+
+## Installation
+
+The first thing that needs to be done is to install the `multiplestressR` package. Currently this package is only available via github, though it will soon be available via CRAN.
+
+The package can be installed from github using the following code:
+
+
+```{.r .bg-info}
+#if devtools is not installed on your machine then it can be installed via:
+#install.packages("devtools")
+
+library(devtools)
+```
+
+```
+## Error in get(genname, envir = envir) : object 'testthat_print' not found
+```
+
+```{.r .bg-info}
+install_github("benjburgess/multiplestressR")
+library(multiplestressR)
+```
+Barring any issues, the package is now installed.
+
+
+## Data
+
+The next step is to load data into *R*. 
+For this tutorial, we will be using an example dataset, which can be generated using the following code:
+
+
+
+```{.r .bg-info}
+df <- data.frame(Sample_Size_Control            = c(3, 5, 4, 4, 8, 8, 6, 8),
+                 Standard_Deviation_Control     = c(0.05, 0.10, 0.12, 0.19, 0.09, 0.06, 0.07, 0.13),
+                 Mean_Control                   = c(0.90, 0.92, 0.75, 0.86, 0.80, 0.97, 0.94, 0.78),
+                 Sample_Size_StressorA          = c(3, 5, 4, 4, 8, 8, 6, 8),
+                 Standard_Deviation_StressorA   = c(0.14, 0.12, 0.16, 0.13, 0.11, 0.11, 0.08, 0.14),
+                 Mean_StressorA                 = c(0.66, 0.72, 0.71, 0.67, 0.75, 0.50, 0.63, 0.61),
+                 Sample_Size_StressorB          = c(3, 5, 4, 4, 8, 8, 6, 8),
+                 Standard_Deviation_StressorB   = c(0.12, 0.08, 0.14, 0.14, 0.12, 0.09, 0.13, 0.19),
+                 Mean_StressorB                 = c(0.69, 0.73, 0.62, 0.69, 0.77, 0.54, 0.68, 0.53),
+                 Sample_Size_StressorsAB        = c(3, 5, 4, 4, 8, 8, 6, 8),
+                 Standard_Deviation_StressorsAB = c(0.08, 0.18, 0.21, 0.10, 0.10, 0.11, 0.13, 0.14),
+                 Mean_StressorsAB               = c(0.73, 0.44, 0.58, 0.45, 0.50, 0.48, 0.60, 0.41))
+```
+
+We can view the first few rows of this dataframe using the following code: 
+
+
+```{.r .bg-info}
+head(df)
+```
+
+```{.bg-success}
+##   Sample_Size_Control Standard_Deviation_Control Mean_Control
+## 1                   3                       0.05         0.90
+## 2                   5                       0.10         0.92
+## 3                   4                       0.12         0.75
+## 4                   4                       0.19         0.86
+## 5                   8                       0.09         0.80
+## 6                   8                       0.06         0.97
+##   Sample_Size_StressorA Standard_Deviation_StressorA Mean_StressorA
+## 1                     3                         0.14           0.66
+## 2                     5                         0.12           0.72
+## 3                     4                         0.16           0.71
+## 4                     4                         0.13           0.67
+## 5                     8                         0.11           0.75
+## 6                     8                         0.11           0.50
+##   Sample_Size_StressorB Standard_Deviation_StressorB Mean_StressorB
+## 1                     3                         0.12           0.69
+## 2                     5                         0.08           0.73
+## 3                     4                         0.14           0.62
+## 4                     4                         0.14           0.69
+## 5                     8                         0.12           0.77
+## 6                     8                         0.09           0.54
+##   Sample_Size_StressorsAB Standard_Deviation_StressorsAB Mean_StressorsAB
+## 1                       3                           0.08             0.73
+## 2                       5                           0.18             0.44
+## 3                       4                           0.21             0.58
+## 4                       4                           0.10             0.45
+## 5                       8                           0.10             0.50
+## 6                       8                           0.11             0.48
+```
+
+This data could correspond to any number of response metrics (e.g., growth or survival rates). However, it may be assumed that this generated dataset corresponds to population densities of a given species.
+
+As you can see, the dataframe contains data for eight interactions (rows) and twelve variables (columns), with three columns for each treatment (X_Control, X_StressorA, X_StressorB, X_StressorsAB). For each treatment, there is a column for treatment means (Mean_X), treatment standard deviation (Standard_Deviation_X), and treatment sample size (Sample_Size_X). It is important to note that any dataset must contain these three variables; means must be used (i.e., not medians or other metrics), standard deviation must be reported (i.e., not standard error or confidence intervals), and sample sizes must be reported.
+
+
+## Null models
+
+The next step is to calculate the null models for each interaction. 
+
+Within the `multiplestressR` package, there are two functions for calculating the null models, either `effect_size_additive` or `effect_size_multiplicative`. The former is the implementing the additive null model, while the latter is for implementing the multiplicative null model. For this tutorial we will be implementing the additive null model. Though an example of code using the multiplicative null model is detailed at the very end of this tutorial.
+
+For the `effect_size_additive` function, fourteen variables need to be specified. Of these twelve relate to the previous discussed means, standard deviations, and sample sizes. Specifying the variables in this manner ensures that each treatment is assigned the correct data (e.g., Control and StressorA are not mixed up) and that different variables are not incorrectly labelled (e.g., standard deviations and means are not mixed up).
+
+The final two variables are user specified at this point. Firstly, `Significance_Level` corresponds to the level of alpha which should be used when calculating confidence intervals for a given interaction effect size. The default is 0.05, (i.e., calculating 95% confidence intervals) but this can be changed by specifying a number between 0 and 1. Secondly, Hedges' d (i.e., the form of the additive null model used here) has been shown to slightly overestimate effects where small sizes are small (i.e., <20). As such, there is a small statistical correction which can be applied to the null model to overcome this bias. By default, the variable `Small_Sample_Correction` is set to TRUE, namely the bias is corrected, though this can be disabled by setting `Small_Sample_Correction` to FALSE. Note that for the mulitplicative null model (i.e., `effect_size_multiplicative` this bias does not exist and so the parameter is specified in the model).
+
+The additive null model can be run using the following code:
+
+
+
+```{.r .bg-info}
+df  <- effect_size_additive(Control_N                = df$Sample_Size_Control,           
+                            Control_SD               = df$Standard_Deviation_Control,    
+                            Control_Mean             = df$Mean_Control,                  
+                            StressorA_N              = df$Sample_Size_StressorA,         
+                            StressorA_SD             = df$Standard_Deviation_StressorA,  
+                            StressorA_Mean           = df$Mean_StressorA,                
+                            StressorB_N              = df$Sample_Size_StressorB,         
+                            StressorB_SD             = df$Standard_Deviation_StressorB,  
+                            StressorB_Mean           = df$Mean_StressorB,                
+                            StressorsAB_N            = df$Sample_Size_StressorsAB,       
+                            StressorsAB_SD           = df$Standard_Deviation_StressorsAB,
+                            StressorsAB_Mean         = df$Mean_StressorsAB,
+                            Small_Sample_Correction  = TRUE,
+                            Significance_Level       = 0.05)
+head(df)
+```
+
+```{.bg-success}
+##   Control_N Control_SD Control_Mean StressorA_N StressorA_SD StressorA_Mean
+## 1         3       0.05         0.90           3         0.14           0.66
+## 2         5       0.10         0.92           5         0.12           0.72
+## 3         4       0.12         0.75           4         0.16           0.71
+## 4         4       0.19         0.86           4         0.13           0.67
+## 5         8       0.09         0.80           8         0.11           0.75
+## 6         8       0.06         0.97           8         0.11           0.50
+##   StressorB_N StressorB_SD StressorB_Mean StressorsAB_N StressorsAB_SD
+## 1           3         0.12           0.69             3           0.08
+## 2           5         0.08           0.73             5           0.18
+## 3           4         0.14           0.62             4           0.21
+## 4           4         0.14           0.69             4           0.10
+## 5           8         0.12           0.77             8           0.10
+## 6           8         0.09           0.54             8           0.11
+##   StressorsAB_Mean Interaction_Effect_Size Interaction_Variance
+## 1             0.73            1.993931e+00            1.2229013
+## 2             0.44           -6.099155e-01            0.7340589
+## 3             0.58            5.590315e-16            0.8764147
+## 4             0.45           -2.820950e-01            0.8785941
+## 5             0.50           -1.896226e+00            0.5265247
+## 6             0.48            3.938868e+00            0.7028286
+##   Interaction_CI_Upper Interaction_CI_Lower Null_Model
+## 1            4.1613544           -0.1734928   Additive
+## 2            1.0693275           -2.2891585   Additive
+## 3            1.8348599           -1.8348599   Additive
+## 4            1.5550449           -2.1192350   Additive
+## 5           -0.4740363           -3.3184153   Additive
+## 6            5.5820013            2.2957348   Additive
+```
+
+Accordingly, this function adds five new variables (columns) and slightly alters the dataset. 
+
+Firstly, note that within the dataset, the columns for means, standard deviations, and sample sizes have been renamed.
+
+Secondly, `Interaction_Effect_Size` is a value which indicates the strength of any interaction which is occuring, the greater the value (positive or negative) of the `Interaction_Effect_Size` the stronger the interaction. If an interaction has an `Interaction_Effect_Size` of exactly 0, then the effect predicted by the additive null model is exactly the same as the observed effect of the interacting stressors.
+
+Thirdly, `Interaction_Variance` details the uncertainty in the `Interaction_Effect_Size`. Given the uncertainty (i.e., standard deviations) in the raw data it stands to reason that there will also be uncertainty in the value of `Interaction_Effect_Size`. This value for the variance can be be used to calculate confidence intervals based upon the chosen `Significance_Level` here referred to as `Interaction_CI_Upper` and `Interaction_CI_Lower`. The values of `Interaction_Effect_Size` and confidence intervals can then be used to classify each interaction.
+
+The final variable in the dataset is `Null_Model`, this simply reflects whether the additive or multiplicative null model was implemented.
+
+
+## Classifying interactions
+
+The next step is to classify each interaction. 
+
+Within the `multiplestressR` package, this can be done using the `classify_interactions` function. 
+
+To implement this function, the following three variables need to be specified.
+
+Firstly, `effect_size_dataframe` is the output of the either the `effect_size_additive` or `effect_size_multiplicative` functions. Note that this must be the exact output of either of these functions.
+
+Secondly, `assign_reversals` determines whether the interaction classificaton of *reversal* should be distinguished from *antagonisms* (see above). The default for this function is TRUE; though this can be altered by specifying the variable as FALSE.
+
+Thirdly, the `remove_directionality` parameter can be implemented. For the purposes of this tutorial this parameter is not considered any further, its default value is likewise FALSE. However, while this parameter is unlikely to be important for the results of any single experiment, it is important for those researchers conducting a meta-analysis. *This will be addressed in a subsequent tutorial*. At present, those conducting a meta-analysis should consult the following published papers when considering the importance of removing directionality from those analyses ([Burgess et al. (2021b)](https://onlinelibrary.wiley.com/doi/full/10.1111/gcb.15630), [Jackson et al. (2016)](https://onlinelibrary.wiley.com/doi/abs/10.1111/gcb.13028), [Seifert et al. (2020)](https://onlinelibrary.wiley.com/doi/full/10.1111/gcb.15341), [Siviter et al. (2021)](https://www.nature.com/articles/s41586-021-03787-7?ltclid=)).
+
+For a detailed outline of this function (e.g., how interactions are assigned, and the use of the `remove_directionality` parameter), see the help guide for the `classify_interactions` function. This can be accessed by using the following code:
+
+
+```{.r .bg-info}
+#    ?multiplestressR::classify_interactions
+##    Note that the above `#` must be removed in order for this code to be run.
+```
+
+As such, interactions can be classified by using the following code:
+
+
+```{.r .bg-info}
+df  <- classify_interactions(effect_size_dataframe = df,
+                    assign_reversals = TRUE)
+head(df)
+```
+
+```{.bg-success}
+##   Control_N Control_SD Control_Mean StressorA_N StressorA_SD StressorA_Mean
+## 1         3       0.05         0.90           3         0.14           0.66
+## 2         5       0.10         0.92           5         0.12           0.72
+## 3         4       0.12         0.75           4         0.16           0.71
+## 4         4       0.19         0.86           4         0.13           0.67
+## 5         8       0.09         0.80           8         0.11           0.75
+## 6         8       0.06         0.97           8         0.11           0.50
+##   StressorB_N StressorB_SD StressorB_Mean StressorsAB_N StressorsAB_SD
+## 1           3         0.12           0.69             3           0.08
+## 2           5         0.08           0.73             5           0.18
+## 3           4         0.14           0.62             4           0.21
+## 4           4         0.14           0.69             4           0.10
+## 5           8         0.12           0.77             8           0.10
+## 6           8         0.09           0.54             8           0.11
+##   StressorsAB_Mean Interaction_Effect_Size Interaction_Variance
+## 1             0.73            1.993931e+00            1.2229013
+## 2             0.44           -6.099155e-01            0.7340589
+## 3             0.58            5.590315e-16            0.8764147
+## 4             0.45           -2.820950e-01            0.8785941
+## 5             0.50           -1.896226e+00            0.5265247
+## 6             0.48            3.938868e+00            0.7028286
+##   Interaction_CI_Upper Interaction_CI_Lower Null_Model
+## 1            4.1613544           -0.1734928   Additive
+## 2            1.0693275           -2.2891585   Additive
+## 3            1.8348599           -1.8348599   Additive
+## 4            1.5550449           -2.1192350   Additive
+## 5           -0.4740363           -3.3184153   Additive
+## 6            5.5820013            2.2957348   Additive
+##   Interaction_Classification
+## 1                       Null
+## 2                       Null
+## 3                       Null
+## 4                       Null
+## 5                Synergistic
+## 6               Antagonistic
+```
+
+By considering the first few rows of the dataset, it is evident that a single new column has been added to the dataset. This column `Interaction_Classification` describes the classification assigned to see interaction.
+
+
+## Summary plots
+
+The `multiplestressR` package also has a function (`summary_plots`) which can be used to generate five plots which may help interpret any analyses. This function has three input parameters,
+
+Firstly, `effect_size_dataframe` which corresponds to the output of the `classify_interactions` function.
+
+Secondly, `Small_Sample_Correction` which corresponds to whether or not the bias correction for small sample sizes was implemented in the `effect_size_additive` function.
+
+Finally, `Significance_Level` which again corresponds to the significance level used in the `effect_size_additive` (or `effect_size_multiplicative`) function.
+
+The summary plots can be generated using the following code:
+
+
+
+```{.r .bg-info}
+dfm_plots <- summary_plots(effect_size_dataframe = df,
+                           Small_Sample_Correction = TRUE,
+                           Significance_Level = 0.05)
+```
+
+```
+## Registered S3 methods overwritten by 'tibble':
+##   method     from  
+##   format.tbl pillar
+##   print.tbl  pillar
+```
+
+```{.r .bg-info}
+dfm_plots
+```
+
+```
+## Warning: Use of `df_plot1$Interaction_Classification` is discouraged. Use
+## `Interaction_Classification` instead.
+```
+
+```
+## Warning: Use of `df_plot1$Proportion` is discouraged. Use `Proportion` instead.
+```
+
+```
+## Warning: Use of `df_plot1$Interaction_Classification` is discouraged. Use
+## `Interaction_Classification` instead.
+```
+
+```
+## Warning: Use of `df_MA$Interaction_Effect_Size` is discouraged. Use
+## `Interaction_Effect_Size` instead.
+```
+
+```
+## Warning: Use of `df_MA$Interaction_Standard_Error` is discouraged. Use
+## `Interaction_Standard_Error` instead.
+```
+
+<img src="multiplestressR1_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+
+For this analysis, only the first two plots (going clockwise from top-left) are overly useful for any interpretation, although the final three plots are likely to be useful to those researchers conducting a meta-analysis.
+
+The first figure reveals the frequency of the different interaction classifications for interactions within a dataset. For this analysis it is apparent that 25% (2/8) of interactions are assigned an *antagonistic* interaction class, 12.5% (1/8) of interactions are assigned a *synergistic* class, while 62.5% (5/8) interactions are assigned a *null* (i.e., *additive*) interaction class. 
+
+The second figure plots `Interaction_Effect_Size` against median treatment sample sizes (averaged across all four treatments). On this figure, black lines indicate the critical effect size for a given sample size (i.e., the minimum effect size required in order for an interaction to be significantly different to zero). Only those interactions which have interaction effect sizes greater than the critical effect size have been assigned a *non-null* interaction classification. 
+
+It is also important to note that a *null* interaction classification does not necessarily mean that no interaction is occurring. A null classification may instead be assigned due to an experiment having an insufficient power to detect a given interaction (i.e., insufficient sample sizes to statistically determine whether an interaction between stressors was occurring).
+
+For more information on the role of sample sizes in determining interaction classifications and critical effect sizes, see [Burgess et al. (2021a)](https://www.biorxiv.org/content/10.1101/2021.07.21.453207v1.abstract).
+
+
+## Concluding remarks
+
+Overall, this tutorial has shown how the `multiplestressR` package can be easily and quickly used to implement null models and classify interactions. Indeed, it provides an easy to use framework which is applicable in a range of scenarios. Furthermore, this package allows the results of experiments, studies, or meta-analyses to be easily compared with no concerns regarding how differences in analytical methodologies may affect results.
+
+This tutorial likewise provides a framework which researchers may wish to modify for their studies, allowing researchers unfamiliar with `R` or these statistical tools to easily conduct a rigorous analysis of their data.
+
+
+
+## Multiplicative null model
+
+Below is an example of the code which can be used to conduct the same analysis as that detailed above, but for the multiplicative null model, not the additive null model.
+
+
+```{.r .bg-info}
+#if devtools is not installed on your machine then it can be installed via:
+#install.packages("devtools")
+
+library(devtools)
+install_github("benjburgess/multiplestressR")
+library(multiplestressR)
+
+dfm <- data.frame(Sample_Size_Control           = c(3, 5, 4, 4, 8, 8, 6, 8),
+                 Standard_Deviation_Control     = c(0.05, 0.10, 0.12, 0.19, 0.09, 0.06, 0.07, 0.13),
+                 Mean_Control                   = c(0.90, 0.92, 0.75, 0.86, 0.80, 0.97, 0.94, 0.78),
+                 Sample_Size_StressorA          = c(3, 5, 4, 4, 8, 8, 6, 8),
+                 Standard_Deviation_StressorA   = c(0.14, 0.12, 0.16, 0.13, 0.11, 0.11, 0.08, 0.14),
+                 Mean_StressorA                 = c(0.66, 0.72, 0.71, 0.67, 0.75, 0.50, 0.63, 0.61),
+                 Sample_Size_StressorB          = c(3, 5, 4, 4, 8, 8, 6, 8),
+                 Standard_Deviation_StressorB   = c(0.12, 0.08, 0.14, 0.14, 0.12, 0.09, 0.13, 0.19),
+                 Mean_StressorB                 = c(0.69, 0.73, 0.62, 0.69, 0.77, 0.54, 0.68, 0.53),
+                 Sample_Size_StressorsAB        = c(3, 5, 4, 4, 8, 8, 6, 8),
+                 Standard_Deviation_StressorsAB = c(0.08, 0.18, 0.21, 0.10, 0.10, 0.11, 0.13, 0.14),
+                 Mean_StressorsAB               = c(0.73, 0.44, 0.58, 0.45, 0.50, 0.48, 0.60, 0.41))
+
+head(dfm)
+```
+
+```{.bg-success}
+##   Sample_Size_Control Standard_Deviation_Control Mean_Control
+## 1                   3                       0.05         0.90
+## 2                   5                       0.10         0.92
+## 3                   4                       0.12         0.75
+## 4                   4                       0.19         0.86
+## 5                   8                       0.09         0.80
+## 6                   8                       0.06         0.97
+##   Sample_Size_StressorA Standard_Deviation_StressorA Mean_StressorA
+## 1                     3                         0.14           0.66
+## 2                     5                         0.12           0.72
+## 3                     4                         0.16           0.71
+## 4                     4                         0.13           0.67
+## 5                     8                         0.11           0.75
+## 6                     8                         0.11           0.50
+##   Sample_Size_StressorB Standard_Deviation_StressorB Mean_StressorB
+## 1                     3                         0.12           0.69
+## 2                     5                         0.08           0.73
+## 3                     4                         0.14           0.62
+## 4                     4                         0.14           0.69
+## 5                     8                         0.12           0.77
+## 6                     8                         0.09           0.54
+##   Sample_Size_StressorsAB Standard_Deviation_StressorsAB Mean_StressorsAB
+## 1                       3                           0.08             0.73
+## 2                       5                           0.18             0.44
+## 3                       4                           0.21             0.58
+## 4                       4                           0.10             0.45
+## 5                       8                           0.10             0.50
+## 6                       8                           0.11             0.48
+```
+
+```{.r .bg-info}
+dfm <- effect_size_multiplicative(Control_N                = dfm$Sample_Size_Control,           
+                                  Control_SD               = dfm$Standard_Deviation_Control,    
+                                  Control_Mean             = dfm$Mean_Control,                  
+                                  StressorA_N              = dfm$Sample_Size_StressorA,         
+                                  StressorA_SD             = dfm$Standard_Deviation_StressorA,  
+                                  StressorA_Mean           = dfm$Mean_StressorA,                
+                                  StressorB_N              = dfm$Sample_Size_StressorB,         
+                                  StressorB_SD             = dfm$Standard_Deviation_StressorB,  
+                                  StressorB_Mean           = dfm$Mean_StressorB,                
+                                  StressorsAB_N            = dfm$Sample_Size_StressorsAB,       
+                                  StressorsAB_SD           = dfm$Standard_Deviation_StressorsAB,
+                                  StressorsAB_Mean         = dfm$Mean_StressorsAB,
+                                  Significance_Level       = 0.05)
+
+head(dfm)
+```
+
+```{.bg-success}
+##   Control_N Control_SD Control_Mean StressorA_N StressorA_SD StressorA_Mean
+## 1         3       0.05         0.90           3         0.14           0.66
+## 2         5       0.10         0.92           5         0.12           0.72
+## 3         4       0.12         0.75           4         0.16           0.71
+## 4         4       0.19         0.86           4         0.13           0.67
+## 5         8       0.09         0.80           8         0.11           0.75
+## 6         8       0.06         0.97           8         0.11           0.50
+##   StressorB_N StressorB_SD StressorB_Mean StressorsAB_N StressorsAB_SD
+## 1           3         0.12           0.69             3           0.08
+## 2           5         0.08           0.73             5           0.18
+## 3           4         0.14           0.62             4           0.21
+## 4           4         0.14           0.69             4           0.10
+## 5           8         0.12           0.77             8           0.10
+## 6           8         0.09           0.54             8           0.11
+##   StressorsAB_Mean Interaction_Effect_Size Interaction_Variance
+## 1             0.73              0.36650786           0.03011244
+## 2             0.44             -0.26114735           0.04379153
+## 3             0.58             -0.01188314           0.06461652
+## 4             0.45             -0.17778934           0.04425207
+## 5             0.50             -0.36724390           0.01230685
+## 6             0.48              0.54490494           0.01656516
+##   Interaction_CI_Upper Interaction_CI_Lower     Null_Model
+## 1            0.7066192           0.02639654 Multiplicative
+## 2            0.1490031          -0.67129776 Multiplicative
+## 3            0.4863354          -0.51010165 Multiplicative
+## 4            0.2345121          -0.59009082 Multiplicative
+## 5           -0.1498129          -0.58467489 Multiplicative
+## 6            0.7971635           0.29264640 Multiplicative
+```
+
+```{.r .bg-info}
+#classifying interactions
+dfm <- classify_interactions(effect_size_dataframe = dfm,
+                             assign_reversals = TRUE,
+                             remove_directionality = TRUE)
+
+head(dfm)
+```
+
+```{.bg-success}
+##   Control_N Control_SD Control_Mean StressorA_N StressorA_SD StressorA_Mean
+## 1         3       0.05         0.90           3         0.14           0.66
+## 2         5       0.10         0.92           5         0.12           0.72
+## 3         4       0.12         0.75           4         0.16           0.71
+## 4         4       0.19         0.86           4         0.13           0.67
+## 5         8       0.09         0.80           8         0.11           0.75
+## 6         8       0.06         0.97           8         0.11           0.50
+##   StressorB_N StressorB_SD StressorB_Mean StressorsAB_N StressorsAB_SD
+## 1           3         0.12           0.69             3           0.08
+## 2           5         0.08           0.73             5           0.18
+## 3           4         0.14           0.62             4           0.21
+## 4           4         0.14           0.69             4           0.10
+## 5           8         0.12           0.77             8           0.10
+## 6           8         0.09           0.54             8           0.11
+##   StressorsAB_Mean Interaction_Effect_Size Interaction_Variance
+## 1             0.73             -0.36650786           0.03011244
+## 2             0.44              0.26114735           0.04379153
+## 3             0.58              0.01188314           0.06461652
+## 4             0.45              0.17778934           0.04425207
+## 5             0.50              0.36724390           0.01230685
+## 6             0.48             -0.54490494           0.01656516
+##   Interaction_CI_Upper Interaction_CI_Lower     Null_Model
+## 1          -0.02639654           -0.7066192 Multiplicative
+## 2           0.67129776           -0.1490031 Multiplicative
+## 3           0.51010165           -0.4863354 Multiplicative
+## 4           0.59009082           -0.2345121 Multiplicative
+## 5           0.58467489            0.1498129 Multiplicative
+## 6          -0.29264640           -0.7971635 Multiplicative
+##   Interaction_Classification
+## 1               Antagonistic
+## 2                       Null
+## 3                       Null
+## 4                       Null
+## 5                Synergistic
+## 6               Antagonistic
+```
+
+```{.r .bg-info}
+#generate summary plots
+dfm_plots <- summary_plots(effect_size_dataframe = dfm,
+                           Significance_Level = 0.05)
+
+dfm_plots
+```
+
+<img src="multiplestressR1_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+
+## References
+
+Burgess, B. J., Jackson, M. C., & Murrell, D. J. (2021a). Multiple stressor null models frequently fail to detect most interactions due to low statistical power. *bioRxiv*.
+
+Burgess, B. J., Purves, D., Mace, G., & Murrell, D. J. (2021b). Classifying ecosystem stressor interactions: Theory highlights the data limitations of the additive null model and the difficulty in revealing ecological surprises. *Global Change Biology*.
+
+Jackson, M. C., Loewen, C. J., Vinebrooke, R. D., & Chimimba, C. T. (2016). Net effects of multiple stressors in freshwater ecosystems: a meta-analysis. *Global Change Biology*, 22(1), 180-189.
+
+Seifert, M., Rost, B., Trimborn, S., & Hauck, J. (2020). Meta-analysis of multiple driver effects on marine phytoplannkton highlights modulating role of pCO2. *Global Change Biology*, 26(12), 6787-6804.
+
+Siviter, H., Bailes, E. J., Martin, C. D., Oliver, T. R., Koricheva, J., Leadbeater, E., & Brown, M. J. (2021). Agrochemicals interact synergistically to increase bee mortality. *Nature*, 596(7872), 389-392.
+
+
+## Links
+
+[benjburgess.github.io](https://benjburgess.github.io/)
+
+[multiplestressR](https://benjburgess.github.io/multiplestressR)

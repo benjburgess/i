@@ -15,6 +15,13 @@ Outlined below are all the tutorials currently written on various different topi
 
 Note that these will continue to be added over the coming weeks.
 
+## Machine Learning
+
+### Support Vector Machines (SVMs)
+
+A [tutorial for SVMs](https://benjburgess.github.io/i/svm) where `R` code is provided. The tutorial utilises on an openly available dataset on wine. This example generates a SVM which is capable of accurately determining the quality of wine based on its chemical properties. 
+
+
 ## multiplestressR - R package
 
 ### Introductory tutorial
