@@ -266,7 +266,7 @@ library(scutr)
 library(caret)
 library(caTools)
 
-set.seed(392)</code></pre>
+set.seed(7654)</code></pre>
 </div>
 <div id="data-loading" class="section level2">
 <h2>Data loading</h2>
@@ -352,24 +352,24 @@ df.test  &lt;- df[!split_determined,]</code></pre>
 <pre class="bg-success"><code>##   fixed_acidity volatile_acidity citric_acid residual_sugar chlorides
 ## 1           7.0             0.27        0.36           20.7     0.045
 ## 2           6.3             0.30        0.34            1.6     0.049
+## 3           8.1             0.28        0.40            6.9     0.050
 ## 4           7.2             0.23        0.32            8.5     0.058
-## 6           8.1             0.28        0.40            6.9     0.050
+## 5           7.2             0.23        0.32            8.5     0.058
 ## 7           6.2             0.32        0.16            7.0     0.045
-## 8           7.0             0.27        0.36           20.7     0.045
 ##   free_sulfur_dioxide total_sulfur_dioxide density   pH sulphates alcohol
 ## 1                  45                  170  1.0010 3.00      0.45     8.8
 ## 2                  14                  132  0.9940 3.30      0.49     9.5
+## 3                  30                   97  0.9951 3.26      0.44    10.1
 ## 4                  47                  186  0.9956 3.19      0.40     9.9
-## 6                  30                   97  0.9951 3.26      0.44    10.1
+## 5                  47                  186  0.9956 3.19      0.40     9.9
 ## 7                  30                  136  0.9949 3.18      0.47     9.6
-## 8                  45                  170  1.0010 3.00      0.45     8.8
 ##   quality white red
 ## 1       6     1   0
 ## 2       6     1   0
+## 3       6     1   0
 ## 4       6     1   0
-## 6       6     1   0
-## 7       6     1   0
-## 8       6     1   0</code></pre>
+## 5       6     1   0
+## 7       6     1   0</code></pre>
 <p><a href="https://stats.stackexchange.com/questions/65094/why-scaling-is-important-for-the-linear-svm-classification/224201">This is an issue for SVMs</a>, as if data is on different scales there is the potential for the numerically larger variables to be given a greater importance than the numerically smaller variables. This then has the potential to bias our model. As such, we need to rescale each variable to be on the same scale. This can be done with the following code, <a href="https://datascience.stackexchange.com/questions/13971/standardization-normalization-test-data-in-r">see this stackoverflow link for more details</a>.</p>
 <pre class="r bg-info"><code>train_scaling &lt;- preProcess(df.train, method=c(&quot;scale&quot;, &quot;center&quot;))
 df.train &lt;- predict(train_scaling, df.train)
@@ -414,94 +414,94 @@ summary(svm_trained) #show the summary of our svm training</code></pre>
 ## 
 ## - best parameters:
 ##  gamma cost
-##    0.5    8
+##      1    2
 ## 
-## - best performance: 0.2245712 
+## - best performance: 0.2073409 
 ## 
 ## - Detailed performance results:
-##       gamma  cost     error dispersion
-## 1  0.015625  0.25 0.5627757 0.01913876
-## 2  0.031250  0.25 0.5291728 0.02185324
-## 3  0.062500  0.25 0.4884902 0.02719394
-## 4  0.125000  0.25 0.4186471 0.01975606
-## 5  0.250000  0.25 0.3638301 0.02102784
-## 6  0.500000  0.25 0.3244877 0.02455975
-## 7  1.000000  0.25 0.3350964 0.02420518
-## 8  2.000000  0.25 0.4378958 0.03070751
-## 9  4.000000  0.25 0.5806819 0.01848951
-## 10 0.015625  0.50 0.5486311 0.01697332
-## 11 0.031250  0.50 0.4986638 0.02038763
-## 12 0.062500  0.50 0.4469388 0.02555002
-## 13 0.125000  0.50 0.3786414 0.02038894
-## 14 0.250000  0.50 0.3269208 0.02342082
-## 15 0.500000  0.50 0.2820445 0.01918734
-## 16 1.000000  0.50 0.2632582 0.01567084
-## 17 2.000000  0.50 0.2955391 0.02272693
-## 18 4.000000  0.50 0.3801994 0.02912312
-## 19 0.015625  1.00 0.5245341 0.01703131
-## 20 0.031250  1.00 0.4723612 0.01670321
-## 21 0.062500  1.00 0.4020727 0.01864811
-## 22 0.125000  1.00 0.3521191 0.01963996
-## 23 0.250000  1.00 0.2999556 0.01813292
-## 24 0.500000  1.00 0.2548555 0.01647995
-## 25 1.000000  1.00 0.2376155 0.02289944
-## 26 2.000000  1.00 0.2464612 0.01738536
-## 27 4.000000  1.00 0.2917814 0.02121184
-## 28 0.015625  2.00 0.4940265 0.01915520
-## 29 0.031250  2.00 0.4396535 0.02161461
-## 30 0.062500  2.00 0.3689167 0.02354306
-## 31 0.125000  2.00 0.3178564 0.01919777
-## 32 0.250000  2.00 0.2782893 0.01756220
-## 33 0.500000  2.00 0.2347404 0.02013070
-## 34 1.000000  2.00 0.2267841 0.02211369
-## 35 2.000000  2.00 0.2422601 0.01589852
-## 36 4.000000  2.00 0.2820557 0.01868036
-## 37 0.015625  4.00 0.4703750 0.01544734
-## 38 0.031250  4.00 0.4000860 0.02107820
-## 39 0.062500  4.00 0.3532199 0.02410480
-## 40 0.125000  4.00 0.2961969 0.01557229
-## 41 0.250000  4.00 0.2557351 0.01987416
-## 42 0.500000  4.00 0.2287718 0.01911934
-## 43 1.000000  4.00 0.2276666 0.02481461
-## 44 2.000000  4.00 0.2446908 0.01684285
-## 45 4.000000  4.00 0.2818350 0.01919937
-## 46 0.015625  8.00 0.4383242 0.01892960
-## 47 0.031250  8.00 0.3762132 0.02084318
-## 48 0.062500  8.00 0.3293496 0.02433158
-## 49 0.125000  8.00 0.2818262 0.01998068
-## 50 0.250000  8.00 0.2371686 0.01957472
-## 51 0.500000  8.00 0.2245712 0.01902485
-## 52 1.000000  8.00 0.2294394 0.02143075
-## 53 2.000000  8.00 0.2444710 0.01667403
-## 54 4.000000  8.00 0.2816137 0.01908115
-## 55 0.015625 16.00 0.4031765 0.02127688
-## 56 0.031250 16.00 0.3547740 0.01807625
-## 57 0.062500 16.00 0.3057039 0.01698297
-## 58 0.125000 16.00 0.2632563 0.01377906
-## 59 0.250000 16.00 0.2325285 0.01973393
-## 60 0.500000 16.00 0.2258986 0.02000456
-## 61 1.000000 16.00 0.2292177 0.02229825
-## 62 2.000000 16.00 0.2446917 0.01720988
-## 63 4.000000 16.00 0.2816137 0.01908115
-## 64 0.015625 32.00 0.3828410 0.02029766
-## 65 0.031250 32.00 0.3364224 0.02511023
-## 66 0.062500 32.00 0.2835927 0.01950335
-## 67 0.125000 32.00 0.2480020 0.01595144
-## 68 0.250000 32.00 0.2272197 0.02068171
-## 69 0.500000 32.00 0.2294399 0.01909458
-## 70 1.000000 32.00 0.2298814 0.02150945
-## 71 2.000000 32.00 0.2442497 0.01759258
-## 72 4.000000 32.00 0.2816137 0.01908115
-## 73 0.015625 64.00 0.3583099 0.01678227
-## 74 0.031250 64.00 0.3147629 0.02182769
-## 75 0.062500 64.00 0.2716550 0.01667192
-## 76 0.125000 64.00 0.2360639 0.01880356
-## 77 0.250000 64.00 0.2283274 0.01680914
-## 78 0.500000 64.00 0.2303224 0.02050058
-## 79 1.000000 64.00 0.2309861 0.02302211
-## 80 2.000000 64.00 0.2442497 0.01759258
-## 81 4.000000 64.00 0.2816137 0.01908115</code></pre>
-<p>So, as we can see from the model training, the best performing model was when gamma equals 0.5 and cost equals 8. Here the best performance of the model was 0.2245712 which means that across all 10 folds of the cross validation for these parameter values, ~77.5428803% of all wines were assigned the correct category. This isn’t too bad, but there is the potential to further increase this by tuning our SVM.</p>
+##       gamma  cost     error  dispersion
+## 1  0.015625  0.25 0.5318276 0.028561949
+## 2  0.031250  0.25 0.4971273 0.027088104
+## 3  0.062500  0.25 0.4487195 0.023779430
+## 4  0.125000  0.25 0.4261755 0.026045775
+## 5  0.250000  0.25 0.3744511 0.023393665
+## 6  0.500000  0.25 0.3264852 0.018028456
+## 7  1.000000  0.25 0.3171990 0.015181653
+## 8  2.000000  0.25 0.4071632 0.026372699
+## 9  4.000000  0.25 0.5481886 0.023124917
+## 10 0.015625  0.50 0.5161397 0.026632250
+## 11 0.031250  0.50 0.4615445 0.024067858
+## 12 0.062500  0.50 0.4275030 0.026951393
+## 13 0.125000  0.50 0.3855052 0.022532846
+## 14 0.250000  0.50 0.3291327 0.024156416
+## 15 0.500000  0.50 0.2767474 0.017876535
+## 16 1.000000  0.50 0.2531003 0.016610016
+## 17 2.000000  0.50 0.2672425 0.025819262
+## 18 4.000000  0.50 0.3508019 0.020172621
+## 19 0.015625  1.00 0.4801114 0.019434782
+## 20 0.031250  1.00 0.4429799 0.020554521
+## 21 0.062500  1.00 0.4093795 0.031089700
+## 22 0.125000  1.00 0.3516810 0.024577065
+## 23 0.250000  1.00 0.2946453 0.020821902
+## 24 0.500000  1.00 0.2499941 0.015612939
+## 25 1.000000  1.00 0.2223710 0.014905963
+## 26 2.000000  1.00 0.2285633 0.018847362
+## 27 4.000000  1.00 0.2760959 0.023091040
+## 28 0.015625  2.00 0.4617652 0.018603870
+## 29 0.031250  2.00 0.4255177 0.028008310
+## 30 0.062500  2.00 0.3724550 0.022641380
+## 31 0.125000  2.00 0.3240472 0.021845674
+## 32 0.250000  2.00 0.2681186 0.013744644
+## 33 0.500000  2.00 0.2307639 0.018503760
+## 34 1.000000  2.00 0.2073409 0.013808952
+## 35 2.000000  2.00 0.2236999 0.016159396
+## 36 4.000000  2.00 0.2685802 0.021871608
+## 37 0.015625  4.00 0.4469583 0.024049079
+## 38 0.031250  4.00 0.4084960 0.028677388
+## 39 0.062500  4.00 0.3468177 0.024181696
+## 40 0.125000  4.00 0.2908872 0.017602629
+## 41 0.250000  4.00 0.2453520 0.018166923
+## 42 0.500000  4.00 0.2190510 0.016233172
+## 43 1.000000  4.00 0.2080051 0.011778803
+## 44 2.000000  4.00 0.2259079 0.016127487
+## 45 4.000000  4.00 0.2681387 0.022724738
+## 46 0.015625  8.00 0.4266219 0.025120387
+## 47 0.031250  8.00 0.3704688 0.022640447
+## 48 0.062500  8.00 0.3227207 0.021537159
+## 49 0.125000  8.00 0.2703359 0.018718231
+## 50 0.250000  8.00 0.2356327 0.016012398
+## 51 0.500000  8.00 0.2201577 0.015978800
+## 52 1.000000  8.00 0.2084457 0.008126516
+## 53 2.000000  8.00 0.2270136 0.016541437
+## 54 4.000000  8.00 0.2681382 0.022358280
+## 55 0.015625 16.00 0.4071710 0.028260374
+## 56 0.031250 16.00 0.3534461 0.022218527
+## 57 0.062500 16.00 0.2984083 0.021818665
+## 58 0.125000 16.00 0.2482311 0.011622248
+## 59 0.250000 16.00 0.2294433 0.013093859
+## 60 0.500000 16.00 0.2177289 0.010860674
+## 61 1.000000 16.00 0.2097711 0.009713079
+## 62 2.000000 16.00 0.2265711 0.015802271
+## 63 4.000000 16.00 0.2679174 0.021765474
+## 64 0.015625 32.00 0.3755533 0.022584410
+## 65 0.031250 32.00 0.3315659 0.021712700
+## 66 0.062500 32.00 0.2771885 0.018982714
+## 67 0.125000 32.00 0.2402743 0.008071303
+## 68 0.250000 32.00 0.2314325 0.010108032
+## 69 0.500000 32.00 0.2217083 0.010768705
+## 70 1.000000 32.00 0.2106566 0.009434769
+## 71 2.000000 32.00 0.2256862 0.014874747
+## 72 4.000000 32.00 0.2679174 0.021765474
+## 73 0.015625 64.00 0.3587533 0.021603226
+## 74 0.031250 64.00 0.3145397 0.022112980
+## 75 0.062500 64.00 0.2632631 0.020737362
+## 76 0.125000 64.00 0.2345245 0.015806094
+## 77 0.250000 64.00 0.2298873 0.004887139
+## 78 0.500000 64.00 0.2239168 0.013051692
+## 79 1.000000 64.00 0.2108778 0.009618839
+## 80 2.000000 64.00 0.2259074 0.015108367
+## 81 4.000000 64.00 0.2679174 0.021765474</code></pre>
+<p>So, as we can see from the model training, the best performing model was when gamma equals 1 and cost equals 2. Here the best performance of the model was 0.2073409 which means that across all 10 folds of the cross validation for these parameter values, ~79.2659067% of all wines were assigned the correct category. This isn’t too bad, but there is the potential to further increase this by tuning our SVM.</p>
 <p>However, first we need to extract the best performing model using the following code.</p>
 <pre class="r bg-info"><code>svm_trained_model &lt;- svm_trained$best.model</code></pre>
 </div>
@@ -524,69 +524,69 @@ summary(svm_tuned)</code></pre>
 ## - sampling method: 10-fold cross validation 
 ## 
 ## - best parameters:
-##      gamma     cost
-##  0.5946036 4.756828
+##  gamma     cost
+##      1 2.828427
 ## 
-## - best performance: 0.2238997 
+## - best performance: 0.2086645 
 ## 
 ## - Detailed performance results:
-##        gamma      cost     error dispersion
-## 1  0.2973018  4.756828 0.2354002 0.02871226
-## 2  0.3535534  4.756828 0.2323053 0.02609086
-## 3  0.4204482  4.756828 0.2298702 0.02822371
-## 4  0.5000000  4.756828 0.2250078 0.02351579
-## 5  0.5946036  4.756828 0.2238997 0.02385451
-## 6  0.7071068  4.756828 0.2252305 0.02352131
-## 7  0.8408964  4.756828 0.2247919 0.02294688
-## 8  0.2973018  5.656854 0.2347374 0.02647877
-## 9  0.3535534  5.656854 0.2316435 0.02569141
-## 10 0.4204482  5.656854 0.2261125 0.02447998
-## 11 0.5000000  5.656854 0.2239006 0.02283971
-## 12 0.5946036  5.656854 0.2256701 0.02365411
-## 13 0.7071068  5.656854 0.2267797 0.02164024
-## 14 0.8408964  5.656854 0.2252339 0.02169094
-## 15 0.2973018  6.727171 0.2338544 0.02327811
-## 16 0.3535534  6.727171 0.2312001 0.02504900
-## 17 0.4204482  6.727171 0.2261145 0.02135714
-## 18 0.5000000  6.727171 0.2241219 0.02219396
-## 19 0.5946036  6.727171 0.2243465 0.02307639
-## 20 0.7071068  6.727171 0.2274429 0.02103695
-## 21 0.8408964  6.727171 0.2241282 0.02107027
-## 22 0.2973018  8.000000 0.2349601 0.02224257
-## 23 0.3535534  8.000000 0.2303171 0.02193342
-## 24 0.4204482  8.000000 0.2254479 0.02133557
-## 25 0.5000000  8.000000 0.2250078 0.02239828
-## 26 0.5946036  8.000000 0.2258947 0.02147123
-## 27 0.7071068  8.000000 0.2256735 0.02276046
-## 28 0.8408964  8.000000 0.2239085 0.02183915
-## 29 0.2973018  9.513657 0.2325285 0.02146702
-## 30 0.3535534  9.513657 0.2272197 0.02114487
-## 31 0.4204482  9.513657 0.2241224 0.02234252
-## 32 0.5000000  9.513657 0.2261140 0.02362366
-## 33 0.5946036  9.513657 0.2263362 0.02182389
-## 34 0.7071068  9.513657 0.2254527 0.02298948
-## 35 0.8408964  9.513657 0.2254542 0.02184614
-## 36 0.2973018 11.313708 0.2307595 0.02172507
-## 37 0.3535534 11.313708 0.2263333 0.02205832
-## 38 0.4204482 11.313708 0.2247885 0.02362532
-## 39 0.5000000 11.313708 0.2274400 0.02430517
-## 40 0.5946036 11.313708 0.2250083 0.02305085
-## 41 0.7071068 11.313708 0.2261169 0.02123282
-## 42 0.8408964 11.313708 0.2256749 0.02160132
-## 43 0.2973018 13.454343 0.2294302 0.02209878
-## 44 0.3535534 13.454343 0.2272187 0.02193532
-## 45 0.4204482 13.454343 0.2254522 0.02429050
-## 46 0.5000000 13.454343 0.2261125 0.02621882
-## 47 0.5946036 13.454343 0.2252300 0.02146546
-## 48 0.7071068 13.454343 0.2267797 0.02100061
-## 49 0.8408964 13.454343 0.2265594 0.02296532</code></pre>
-<p>So, as we can see from our tuning of the SVM, the best performing model has now changed to where gamma equals 0.5946036 and cost equals 4.7568285. Compared to the training stage, the tuning of the SVM has not changed the predictive ability of the model, evidenced by the absence of any improvement in the performance of the tuned SVM (0.2238997). At this stage we’ll move from tuning our SVM through to the testing stage.</p>
+##        gamma     cost     error dispersion
+## 1  0.5946036 1.189207 0.2349719 0.02172432
+## 2  0.7071068 1.189207 0.2305490 0.02253485
+## 3  0.8408964 1.189207 0.2228115 0.02062511
+## 4  1.0000000 1.189207 0.2203804 0.01885350
+## 5  1.1892071 1.189207 0.2175067 0.02089577
+## 6  1.4142136 1.189207 0.2181704 0.01750585
+## 7  1.6817928 1.189207 0.2203808 0.01343326
+## 8  0.5946036 1.414214 0.2325392 0.02256311
+## 9  0.7071068 1.414214 0.2274522 0.02089007
+## 10 0.8408964 1.414214 0.2186095 0.02279210
+## 11 1.0000000 1.414214 0.2172869 0.01915346
+## 12 1.1892071 1.414214 0.2146345 0.01777947
+## 13 1.4142136 1.414214 0.2150750 0.01412993
+## 14 1.6817928 1.414214 0.2186114 0.01224680
+## 15 0.5946036 1.681793 0.2296626 0.02203152
+## 16 0.7071068 1.681793 0.2254635 0.02319966
+## 17 0.8408964 1.681793 0.2183882 0.02222503
+## 18 1.0000000 1.681793 0.2124236 0.01596983
+## 19 1.1892071 1.681793 0.2135312 0.01596307
+## 20 1.4142136 1.681793 0.2119786 0.01186213
+## 21 1.6817928 1.681793 0.2159580 0.01239237
+## 22 0.5946036 2.000000 0.2276729 0.02225796
+## 23 0.7071068 2.000000 0.2217063 0.02426671
+## 24 0.8408964 2.000000 0.2175082 0.02191280
+## 25 1.0000000 2.000000 0.2104349 0.01564985
+## 26 1.1892071 2.000000 0.2113203 0.01543594
+## 27 1.4142136 2.000000 0.2113135 0.01167560
+## 28 1.6817928 2.000000 0.2159566 0.01266675
+## 29 0.5946036 2.378414 0.2256857 0.02377796
+## 30 0.7071068 2.378414 0.2192766 0.02241834
+## 31 0.8408964 2.378414 0.2122014 0.01840928
+## 32 1.0000000 2.378414 0.2097707 0.01428152
+## 33 1.1892071 2.378414 0.2106546 0.01298632
+## 34 1.4142136 2.378414 0.2108710 0.01157251
+## 35 1.6817928 2.378414 0.2157348 0.01204280
+## 36 0.5946036 2.828427 0.2228135 0.02109208
+## 37 0.7071068 2.828427 0.2181704 0.02070356
+## 38 0.8408964 2.828427 0.2135278 0.01823993
+## 39 1.0000000 2.828427 0.2086645 0.01264116
+## 40 1.1892071 2.828427 0.2097702 0.01199776
+## 41 1.4142136 2.828427 0.2115347 0.01064800
+## 42 1.6817928 2.828427 0.2163985 0.01187967
+## 43 0.5946036 3.363586 0.2201591 0.02106038
+## 44 0.7071068 3.363586 0.2157392 0.01780058
+## 45 0.8408964 3.363586 0.2110966 0.01486662
+## 46 1.0000000 3.363586 0.2104319 0.01323781
+## 47 1.1892071 3.363586 0.2106541 0.01088029
+## 48 1.4142136 3.363586 0.2130829 0.01009993
+## 49 1.6817928 3.363586 0.2159566 0.01110909</code></pre>
+<p>So, as we can see from our tuning of the SVM, the best performing model has now changed to where gamma equals 1 and cost equals 2.8284271. Compared to the training stage, the tuning of the SVM has not changed the predictive ability of the model, evidenced by the absence of any improvement in the performance of the tuned SVM (0.2086645). At this stage we’ll move from tuning our SVM through to the testing stage.</p>
 <p>As before, we need to extract the best performing model using the following code.</p>
 <pre class="r bg-info"><code>final_svm_model &lt;- svm_tuned$best.model</code></pre>
 </div>
 <div id="testing-the-svm" class="section level2">
 <h2>Testing the SVM</h2>
-<p>So as we discussed above, the best forming model is where gamma equals 0.5946036 and cost equals 4.7568285. Here across all 10 folds of the cross validation ~77.6100334% of all wines were assigned to the correct category. This can be seen using the following code.</p>
+<p>So as we discussed above, the best forming model is where gamma equals 1 and cost equals 2.8284271. Here across all 10 folds of the cross validation ~79.1335541% of all wines were assigned to the correct category. This can be seen using the following code.</p>
 <pre class="r bg-info"><code>svm_tuned</code></pre>
 <pre class="bg-success"><code>## 
 ## Parameter tuning of &#39;svm&#39;:
@@ -594,10 +594,10 @@ summary(svm_tuned)</code></pre>
 ## - sampling method: 10-fold cross validation 
 ## 
 ## - best parameters:
-##      gamma     cost
-##  0.5946036 4.756828
+##  gamma     cost
+##      1 2.828427
 ## 
-## - best performance: 0.2238997</code></pre>
+## - best performance: 0.2086645</code></pre>
 <p>This analysis has so far been based on the training dataset, but at this stage we can now shift our attention to the test dataset we subset from the original data. Using our SVM we can now predict the quality of every wine in the test dataset and compare our predictions to the actual class of the wine. From this we can calculate various different metrics which we can use to assess the performance of our SVM. This can be done using the following code.</p>
 <pre class="r bg-info"><code>pred=predict(final_svm_model, df.test)
 
@@ -608,87 +608,87 @@ cm</code></pre>
 ## 
 ##           Reference
 ## Prediction   3   4   5   6   7   8
-##          3   0   1  14   2   1   0
-##          4   2  15  34  29   0   1
-##          5   5  28 388 222  19   2
-##          6   2  16 163 398  68   9
-##          7   0   4  37 177 208  18
-##          8   0   0   2  18  26  28
+##          3   0   0   5   4   1   0
+##          4   0  14  18  21   2   0
+##          5   6  38 442 285  29   8
+##          6   2  11 135 366  76   9
+##          7   1   1  35 155 195  16
+##          8   0   0   3  15  19  25
 ## 
 ## Overall Statistics
 ##                                           
-##                Accuracy : 0.5354          
-##                  95% CI : (0.5129, 0.5578)
+##                Accuracy : 0.5379          
+##                  95% CI : (0.5154, 0.5603)
 ##     No Information Rate : 0.4368          
 ##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
 ##                                           
-##                   Kappa : 0.3348          
+##                   Kappa : 0.3314          
 ##                                           
 ##  Mcnemar&#39;s Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: 3 Class: 4 Class: 5 Class: 6 Class: 7 Class: 8
-## Sensitivity          0.000000 0.234375   0.6082   0.4704   0.6460  0.48276
-## Specificity          0.990664 0.964762   0.7875   0.7635   0.8539  0.97552
-## Pos Pred Value       0.000000 0.185185   0.5843   0.6067   0.4685  0.37838
-## Neg Pred Value       0.995310 0.973599   0.8036   0.6503   0.9236  0.98390
+## Sensitivity          0.000000 0.218750   0.6928   0.4326   0.6056  0.43103
+## Specificity          0.994813 0.978110   0.7182   0.7864   0.8712  0.98031
+## Pos Pred Value       0.000000 0.254545   0.5470   0.6110   0.4839  0.40323
+## Neg Pred Value       0.995330 0.973433   0.8264   0.6413   0.9172  0.98240
 ## Prevalence           0.004646 0.033041   0.3294   0.4368   0.1662  0.02994
-## Detection Rate       0.000000 0.007744   0.2003   0.2055   0.1074  0.01446
-## Detection Prevalence 0.009293 0.041817   0.3428   0.3387   0.2292  0.03820
-## Balanced Accuracy    0.495332 0.599569   0.6978   0.6170   0.7499  0.72914</code></pre>
+## Detection Rate       0.000000 0.007228   0.2282   0.1890   0.1007  0.01291
+## Detection Prevalence 0.005163 0.028394   0.4171   0.3092   0.2081  0.03201
+## Balanced Accuracy    0.497407 0.598430   0.7055   0.6095   0.7384  0.70567</code></pre>
 <p>There’s an awful lot of information here, so let’s breakdown piece by piece to assess our SVM.</p>
 <p>Firstly, let’s start with the confusion matrix using the following code.</p>
 <pre class="r bg-info"><code>cm$table</code></pre>
 <pre class="bg-success"><code>##           Reference
 ## Prediction   3   4   5   6   7   8
-##          3   0   1  14   2   1   0
-##          4   2  15  34  29   0   1
-##          5   5  28 388 222  19   2
-##          6   2  16 163 398  68   9
-##          7   0   4  37 177 208  18
-##          8   0   0   2  18  26  28</code></pre>
-<p>The confusion matrix is basically a way of allowing us to visually assess whether our SVM assigns our wines (from the test dataset) the correct qualities or, if not, which qualities they are assigned. From our dataset we can see that the SVM broadly classifies wine of qualities 5, 7, or 8 correctly. However, the SVM appears to be less good at classifying wines of qualities 3, 4, and 6. This is just a visual inspection and our initial thoughts can be confirmed (or contrasted) using some statistics.</p>
+##          3   0   0   5   4   1   0
+##          4   0  14  18  21   2   0
+##          5   6  38 442 285  29   8
+##          6   2  11 135 366  76   9
+##          7   1   1  35 155 195  16
+##          8   0   0   3  15  19  25</code></pre>
+<p>The confusion matrix is basically a way of allowing us to visually assess whether our SVM assigns our wines (from the test dataset) the correct qualities or, if not, which qualities they are assigned. From our dataset we can see that the SVM broadly classifies wine of qualities 5 or 7 correctly. However, the SVM appears to be less good at classifying wines of qualities 3, 4, and 6. This is just a visual inspection and our initial thoughts can be confirmed (or contrasted) using some statistics.</p>
 <p>Let’s start by considering the overall statistics for our model, which can be called using the following code.</p>
 <pre class="r bg-info"><code>cm$overall</code></pre>
 <pre class="bg-success"><code>##       Accuracy          Kappa  AccuracyLower  AccuracyUpper   AccuracyNull 
-##   5.353640e-01   3.348100e-01   5.128556e-01   5.577651e-01   4.367579e-01 
+##   5.379453e-01   3.313577e-01   5.154415e-01   5.603340e-01   4.367579e-01 
 ## AccuracyPValue  McnemarPValue 
-##   1.926786e-18            NaN</code></pre>
+##   2.540315e-19            NaN</code></pre>
 <p>So, of the metrics here, the main ones we are going to consider are accuracy and kappa.</p>
-<p>If we start with accuracy, the accuracy of our SVM for the test dataset is 53.5363965% which is lower than the accuracy we obtained from the k-fold cross validation of the SVM at the tuning stage (~77.6100334%). Overall, this suggests that our SVM may be overfitting our training data. Indeed, the accuracy suggests that our SVM correctly classifies a little over half of all wines correctly.</p>
+<p>If we start with accuracy, the accuracy of our SVM for the test dataset is 53.7945276% which is lower than the accuracy we obtained from the k-fold cross validation of the SVM at the tuning stage (~79.1335541%). Overall, this suggests that our SVM may be overfitting our training data. Indeed, the accuracy suggests that our SVM correctly classifies a little over half of all wines correctly.</p>
 <p>The next metric to consider is the kappa value. The kappa value is an alternative measure of accuracy which considers the expected and observed accuracy of our SVM. I’m not going to explain kappa in any great detail (but see <a href="https://stats.stackexchange.com/questions/82162/cohens-kappa-in-plain-english">this comprehensive explanation on stackoverflow</a>), but as with the accuracy metric the higher the value of kappa the better. Kappa generally reflects a less biased measure of the accuracy of a model. As such, the value of kappa here indicates that our SVM does not do a great job of classifying wine quality correctly.</p>
 <p>Overall, these metrics are two of the most commonly used metrics for assessing the performance of an SVM.</p>
 <p>The final thing we can do when assessing our SVM performance is to consider how the performance varies between different wine qualities (much as we visually did for the confusion matrix above). This can be done by running the following code.</p>
 <pre class="r bg-info"><code>cm$byClass</code></pre>
 <pre class="bg-success"><code>##          Sensitivity Specificity Pos Pred Value Neg Pred Value Precision
-## Class: 3   0.0000000   0.9906639      0.0000000      0.9953101 0.0000000
-## Class: 4   0.2343750   0.9647624      0.1851852      0.9735991 0.1851852
-## Class: 5   0.6081505   0.7875289      0.5843373      0.8036135 0.5843373
-## Class: 6   0.4704492   0.7635197      0.6067073      0.6502732 0.6067073
-## Class: 7   0.6459627   0.8538700      0.4684685      0.9236437 0.4684685
-## Class: 8   0.4827586   0.9755189      0.3783784      0.9838969 0.3783784
+## Class: 3   0.0000000   0.9948133      0.0000000      0.9953295 0.0000000
+## Class: 4   0.2187500   0.9781100      0.2545455      0.9734325 0.2545455
+## Class: 5   0.6927900   0.7182448      0.5470297      0.8263950 0.5470297
+## Class: 6   0.4326241   0.7864345      0.6110184      0.6412556 0.6110184
+## Class: 7   0.6055901   0.8712074      0.4838710      0.9172099 0.4838710
+## Class: 8   0.4310345   0.9803087      0.4032258      0.9824000 0.4032258
 ##             Recall        F1 Prevalence Detection Rate Detection Prevalence
-## Class: 3 0.0000000       NaN 0.00464636    0.000000000          0.009292721
-## Class: 4 0.2343750 0.2068966 0.03304078    0.007743934          0.041817243
-## Class: 5 0.6081505 0.5960061 0.32937532    0.200309757          0.342798141
-## Class: 6 0.4704492 0.5299601 0.43675787    0.205472380          0.338668043
-## Class: 7 0.6459627 0.5430809 0.16623645    0.107382550          0.229220444
-## Class: 8 0.4827586 0.4242424 0.02994321    0.014455343          0.038203407
+## Class: 3 0.0000000       NaN 0.00464636    0.000000000          0.005162623
+## Class: 4 0.2187500 0.2352941 0.03304078    0.007227672          0.028394424
+## Class: 5 0.6927900 0.6113416 0.32937532    0.228187919          0.417139907
+## Class: 6 0.4326241 0.5065744 0.43675787    0.188951988          0.309241094
+## Class: 7 0.6055901 0.5379310 0.16623645    0.100671141          0.208053691
+## Class: 8 0.4310345 0.4166667 0.02994321    0.012906557          0.032008260
 ##          Balanced Accuracy
-## Class: 3         0.4953320
-## Class: 4         0.5995687
-## Class: 5         0.6978397
-## Class: 6         0.6169844
-## Class: 7         0.7499164
-## Class: 8         0.7291388</code></pre>
+## Class: 3         0.4974066
+## Class: 4         0.5984300
+## Class: 5         0.7055174
+## Class: 6         0.6095293
+## Class: 7         0.7383987
+## Class: 8         0.7056716</code></pre>
 <p>As we can see we have a variety of different metrics for each of the different wine qualities. Here, we are only going to focus on the final column of balanced accuracy, but <a href="https://towardsdatascience.com/accuracy-recall-precision-f-score-specificity-which-to-optimize-on-867d3f11124?gi=f0ce52bb598">an explanation of the other metrics can be found here</a>.</p>
 <p>We can cut out the other metrics, and focus on balanced accuracy using the following code.</p>
 <pre class="r bg-info"><code>cm$byClass[,11]*100</code></pre>
 <pre class="bg-success"><code>## Class: 3 Class: 4 Class: 5 Class: 6 Class: 7 Class: 8 
-## 49.53320 59.95687 69.78397 61.69844 74.99164 72.91388</code></pre>
+## 49.74066 59.84300 70.55174 60.95293 73.83987 70.56716</code></pre>
 <p>While the variable name is now missing, by comparing to the above results we can confirm that this is indeed balanced accuracy which has simply been converted to a percentage.</p>
-<p>As you can see, for wines of qualities 5, 7, and 8, the balanced accuracy is as high as 74.9916351%. Much as we expected from our expectation of the confusion matrix, our SVM does a reasonable job of classifying wines of quality 5, 7, and 8, but a much poorer job of correctly classifying wines of quality 3, 4, or 6. This is really important to understand as while our overall model accuracy is 53.5363965% this actually varies between the different wine qualities. This might be really important for our analyses, as if our primary aim was to build a machine learning model which is capable of accurately determining when a wine is of a very poor quality (i.e., qualities 3 or 4) then the SVM does a relatively poor job of this, suggesting that we may need to adjust our analysis. However, if our aim was to build a model which is capable of accurately determining wines of a higher quality (i.e., qualities 7 or 8) then our analysis may suffice as it appears to do reasonably well at accurately classifying wines of these qualities.</p>
+<p>As you can see, for wines of qualities 5, 7, and 8, the balanced accuracy is as high as 73.8398746%. Much as we expected from our expectation of the confusion matrix, our SVM does a reasonable job of classifying wines of quality 5, 7, and 8, but a much poorer job of correctly classifying wines of quality 3, 4, or 6. This is really important to understand as while our overall model accuracy is 53.7945276% this actually varies between the different wine qualities. This might be really important for our analyses, as if our primary aim was to build a machine learning model which is capable of accurately determining when a wine is of a very poor quality (i.e., qualities 3 or 4) then the SVM does a relatively poor job of this, suggesting that we may need to adjust our analysis. However, if our aim was to build a model which is capable of accurately determining wines of a higher quality (i.e., qualities 7 or 8) then our analysis may suffice as it appears to do reasonably well at accurately classifying wines of these qualities.</p>
 </div>
 <div id="improving-the-svm" class="section level2">
 <h2>Improving the SVM</h2>
