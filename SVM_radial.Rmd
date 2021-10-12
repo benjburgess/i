@@ -277,7 +277,7 @@ cm$table
 
 ```
 
-The confusion matrix is basically a way of allowing us to visually assess whether our SVM assigns our wines (from the test dataset) the correct qualities or, if not, which qualities they are assigned. From our dataset we can see that the SVM broadly classifies wine of qualities 5, 7, or 8 correctly. However, the SVM appears to be less good at classifying wines of qualities 3, 4, and 6. This is just a visual inspection and our initial thoughts can be confirmed (or contrasted) using some statistics.
+The confusion matrix is basically a way of allowing us to visually assess whether our SVM assigns our wines (from the test dataset) the correct qualities or, if not, which qualities they are assigned. From our dataset we can see that the SVM broadly classifies wine of qualities 5 or 7 correctly. However, the SVM appears to be less good at classifying wines of qualities 3, 4, and 6. This is just a visual inspection and our initial thoughts can be confirmed (or contrasted) using some statistics.
 
 Let's start by considering the overall statistics for our model, which can be called using the following code.
 
