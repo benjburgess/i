@@ -190,7 +190,7 @@ For this analysis, we will be using a radial kernel.
 
 The next decision we need to make is what values for the cost and gamma parameters we should specify. For a refresher on these parameters, see the [initial explanation of support vector machines (SVMs)](https://benjburgess.github.io/svm). Fortunately, the SVM package we are using (`e1071`) allows us to test various different parameters and then select the best ones.
 
-For the training and testing of the SVM we will be following the advice of [Hsu et al. (2003)](https://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf). Hsu et al. (2003) advise that SVMs should be generated in two distinct sections. Firstly, a relatively coarse selection of parameter values should be selected which are used to train the model against the training dataset (i.e., training the model). At this point the best parameter values are identified. These parameter values are then used in the next stage (i.e., tuning the model). For tuning the model, a relatively narrow selection of parameter values are then selected which are based on the best parameter values from the model training. This allows for potentially even better model parameters to be identified. 
+[Hsu et al. (2003)](https://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf) advise that SVMs should be generated in two distinct sections. Firstly, a relatively coarse selection of parameter values should be selected which are used to train the model against the training dataset (i.e., training the model). At this point the best parameter values are identified. These parameter values are then used in the next stage (i.e., testing the model). For this tutorial, we are not going to be tuning our SVM, but instead using a cross-validation approach when training our SVM (see below).
 
 The range of parameter values to be used is usually at the discretion of the user, although it is usually on a logarithmic scale. Hsu et al. (2003) suggest that values for cost could be $2^{-5}$, $2^{-3}$, ... $2^{15}$ while for gamma the values could be $2^{-15}$, $2^{-13}$, ... $2^{3}$. In the interests of speed, for this analysis we will be using cost parameter values of $2^{-2}$, $2^{-1}$, ... $2^{6}$ and gamma parameter values of $2^{-6}$, $2^{-5}$, ... $2^{2}$.
 
@@ -211,48 +211,23 @@ svm_trained  <- tune.svm(quality ~ ., #determine wine quality from all other var
 summary(svm_trained) #show the summary of our svm training
 ```
 
-So, as we can see from the model training, the best performing model was when gamma equals `r as.numeric(svm_trained$best.parameters[1])` and cost equals `r as.numeric(svm_trained$best.parameters[2])`. Here the best performance of the model was `r as.numeric(svm_trained$best.performance)` which means that across all 10 folds of the cross validation for these parameter values, ~`r 100*(1-as.numeric(svm_trained$best.performance))`% of all wines were assigned the correct category. This isn't too bad, but there is the potential to further increase this by tuning our SVM. 
+So, as we can see from the model training, the best performing model was when gamma equals `r as.numeric(svm_trained$best.parameters[1])` and cost equals `r as.numeric(svm_trained$best.parameters[2])`. Here the best performance of the model was `r as.numeric(svm_trained$best.performance)` which means that across all 10 folds of the cross validation for these parameter values, ~`r 100*(1-as.numeric(svm_trained$best.performance))`% of all wines were assigned the correct category. 
 
-However, first we need to extract the best performing model using the following code.
+At this stage, we now need to extract the best performing model using the following code.
 
 
 ```{r class.source="bg-info", class.output="bg-success"}
-svm_trained_model <- svm_trained$best.model
+final_svm_model <- svm_trained$best.model
 ```
 
-
-## Tuning the SVM
-
-At this stage we have trained the svm and identified the initial parameter values for gamma and cost. In keeping with the recommendations of [Hsu et al. (2003)](https://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf) the next stage of the model development is to tune the model. At this stage, rather than use the coarse gradient of values for each parameter, we use a much more narrow gradient which should allow us to identify better parameter values for our SVM. At this stage for the cost and gamma parameters, we now consider values in the following range which is centerd on the best model parameters from the training stage of the model development: $2^{n - 0.75}$, $2^{n - 0.5}$, $2^{n - 0.25}$, $2^{n}$,... $2^{n+0.75}$. 
-
-The model tuning can be run using the following code.
-```{r class.source="bg-info", class.output="bg-success"}
-svm_tuned  <- tune.svm(quality ~ .,  #determine wine quality from all other variables
-                       data=df.train, #using the df.train dataset
-                       tunecontrol = tune.control(cross=10), # use k-fold cross validation with k=10
-                       gamma=2^c(seq(log(svm_trained_model$gamma, base=2)-0.75, 
-                                     log(svm_trained_model$gamma, base=2)+0.75, by=1/4)), #select our range of gamma values
-                        cost=2^c(seq(log(svm_trained_model$cost, base=2)-0.75, 
-                                     log(svm_trained_model$cost, base=2)+0.75, by=1/4))) #select our range of cost values
-
-summary(svm_tuned)
-```
-
-So, as we can see from our tuning of the SVM, the best performing model has now changed to where gamma equals `r as.numeric(svm_tuned$best.parameters[1])` and cost equals `r as.numeric(svm_tuned$best.parameters[2])`. Compared to the training stage, the tuning of the SVM has not changed the predictive ability of the model, evidenced by the absence of any improvement in the performance of the tuned SVM (`r as.numeric(svm_tuned$best.performance)`). At this stage we'll move from tuning our SVM through to the testing stage.
-
-As before, we need to extract the best performing model using the following code.
-
-```{r class.source="bg-info", class.output="bg-success"}
-final_svm_model <- svm_tuned$best.model
-```
 
 
 ## Testing the SVM
 
-So as we discussed above, the best forming model is where gamma equals `r as.numeric(svm_tuned$best.parameters[1])` and cost equals `r as.numeric(svm_tuned$best.parameters[2])`. Here across all 10 folds of the cross validation ~`r 100*(1-as.numeric(svm_tuned$best.performance))`% of all wines were assigned to the correct category. This can be seen using the following code.
+So as we discussed above, the best forming model is where gamma equals `r as.numeric(svm_trained$best.parameters[1])` and cost equals `r as.numeric(svm_trained$best.parameters[2])`. Here across all 10 folds of the cross validation ~`r 100*(1-as.numeric(svm_trained$best.performance))`% of all wines were assigned to the correct category. This can be seen using the following code.
 
 ```{r class.source="bg-info", class.output="bg-success"}
-svm_tuned
+svm_trained
 ```
 
 This analysis has so far been based on the training dataset, but at this stage we can now shift our attention to the test dataset we subset from the original data. Using our SVM we can now predict the quality of every wine in the test dataset and compare our predictions to the actual class of the wine. From this we can calculate various different metrics which we can use to assess the performance of our SVM. This can be done using the following code.
@@ -289,7 +264,7 @@ cm$overall
 
 So, of the metrics here, the main ones we are going to consider are accuracy and kappa.
 
-If we start with accuracy, the accuracy of our SVM for the test dataset is `r as.numeric(cm$overall[1])*100`% which is lower than the accuracy we obtained from the k-fold cross validation of the SVM at the tuning stage (~`r 100*(1-as.numeric(svm_tuned$best.performance))`%). Overall, this suggests that our SVM may be overfitting our training data. Indeed, the accuracy suggests that our SVM correctly classifies a little over half of all wines correctly. 
+If we start with accuracy, the accuracy of our SVM for the test dataset is `r as.numeric(cm$overall[1])*100`% which is lower than the accuracy we obtained from the k-fold cross validation of the SVM at the training stage (~`r 100*(1-as.numeric(svm_trained$best.performance))`%). Overall, this suggests that our SVM may be overfitting our training data. Indeed, the accuracy suggests that our SVM correctly classifies a little over half of all wines correctly. 
 
 The next metric to consider is the kappa value. The kappa value is an alternative measure of accuracy which considers the expected and observed accuracy of our SVM. I'm not going to explain kappa in any great detail (but see [this comprehensive explanation on stackoverflow](https://stats.stackexchange.com/questions/82162/cohens-kappa-in-plain-english)), but as with the accuracy metric the higher the value of kappa the better. Kappa generally reflects a less biased measure of the accuracy of a model. As such, the value of kappa here indicates that our SVM does not do a great job of classifying wine quality correctly.
 
@@ -319,7 +294,7 @@ As you can see, for wines of qualities 5, 7, and 8, the balanced accuracy is as 
 
 ## Improving the SVM
 
-As we've shown from the model testing we have developed an SVM which does not do as a good job of classifying wines into different qualities as we would perhaps have hoped. As such, we may wish to further improve the model. On such approach to achieve this may be to further tune the SVM with an even narrower range of parameter values for cost and gamma, however we need to ensure that we are not going to overfit the model when doing this. If our aim was to simply identify whether a wine was of a 'good' or 'bad' quality, then we may wish to recode our data by classifying wines with a quality of 6 or higher as 'good' and 5 or lower as 'bad'. Rerunning the SVM with this recoded data may result in a SVM with a higher predictive ability. Another alternative choice we could make may be to only consider either red or white wines as opposed to building an SVM which attempts to accurately classify both. An additional option we might wish to explore is the use of dimensionality reduction approaches (e.g., Principal Component Analysis) on our chemical data, the use of a few core principal components may help us to remove some of the 'noise' in our data and result in a more accurate model. Overall, any attempts to improve the model are likely to represent a trade-off between many different choices. Indeed, it may be that our relatively limited dataset (~6000 data points) is so inherently noisy (i.e., absence of any clear boundaries between the different wine qualities) that generating an effective SVM capable of classifying wine qualities with a high degree of accuracy may not necessarily be possible.
+As we've shown from the model testing we have developed an SVM which does not do as a good job of classifying wines into different qualities as we would perhaps have hoped. As such, we may wish to further improve the model. On such approach to achieve this may be to tune the SVM with a narrow range of parameter values for cost and gamma, however we need to ensure that we are not going to overfit the model when doing this. If our aim was to simply identify whether a wine was of a 'good' or 'bad' quality, then we may wish to recode our data by classifying wines with a quality of 6 or higher as 'good' and 5 or lower as 'bad'. Rerunning the SVM with this recoded data may result in a SVM with a higher predictive ability. Another alternative choice we could make may be to only consider either red or white wines as opposed to building an SVM which attempts to accurately classify both. An additional option we might wish to explore is the use of dimensionality reduction approaches (e.g., Principal Component Analysis) on our chemical data, the use of a few core principal components may help us to remove some of the 'noise' in our data and result in a more accurate model. Overall, any attempts to improve the model are likely to represent a trade-off between many different choices. Indeed, it may be that our relatively limited dataset (~6000 data points) is so inherently noisy (i.e., absence of any clear boundaries between the different wine qualities) that generating an effective SVM capable of classifying wine qualities with a high degree of accuracy may not necessarily be possible.
 
 
 ## Concluding remarks

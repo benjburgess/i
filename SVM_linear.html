@@ -250,7 +250,7 @@ div.tocify {
 <h1>Introductory Tutorial</h1>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>As I’ve detailed in the <a href="https://benjburgess.github.io/svm">initial explanation of support vector machines (SVMs)</a>, SVMs are a machine learning tool which can be used to classify data into two or more different groups. Outlined below is an example of how an SVM approach can be applied to a relatively simple dataset. For this example, we shall be attempting to build a SVM which is capable of accurately classifying two species based upon their length (in millimetres) and their weight (in kilograms). Here, for simplicity, our species are simply ‘A’ or ‘B’.</p>
+<p>As I’ve detailed in the <a href="https://benjburgess.github.io/svm">initial explanation of support vector machines (SVMs)</a>, SVMs are a machine learning tool which can be used to classify data into two or more different groups. Outlined below is an example of how an SVM approach can be applied to a relatively simple dataset. For this example, we shall be attempting to build a SVM which is capable of accurately classifying two species based upon their length (in millimetres) and their weight (in kilograms). Here, for simplicity, our species are simply ‘A’ or ‘B’. Here, each data point corresponds to an individual of either species ‘A’ or ‘B’ and the corresponding weight and length of that individual.</p>
 <p>Throughout this tutorial the majority of the concepts I refer to are explained in more detail in the <a href="https://benjburgess.github.io/svm">initial explanation of support vector machines (SVMs)</a>. Wherever this is not the case, I’ve added in references and links to other sources. Throughout this tutorial, code chunks will have a blue background and output will have a green background.</p>
 <p>This tutorial is meant to be a relatively simple example of SVMs. For an example of SVMs with more complex data, see the <a href="https://benjburgess.github.io/i/SVM_radial">Advanced Tutorial on SVMs</a>.</p>
 </div>
@@ -316,7 +316,7 @@ df.test  &lt;- predict(train_scaling, df.test)</code></pre>
 <p>At this point we are now ready to start training our SVM. However, we have to make several decisions about our model. Firstly, we have to decide which kernel to use. For a refresher on kernel choice, see the <a href="https://benjburgess.github.io/svm">initial explanation of support vector machines (SVMs)</a>.</p>
 <p>For this introductory tutorial and we will be using a linear kernel.</p>
 <p>The next decision we need to make is what values for the cost parameter we should specify. For a refresher on this parameter, see the <a href="https://benjburgess.github.io/svm">initial explanation of support vector machines (SVMs)</a>. Fortunately, the SVM package we are using (<code>e1071</code>) allows us to test various different parameter values and then select the best ones.</p>
-<p>For the training and testing of the SVM we will be following the advice of <a href="https://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf">Hsu et al. (2003)</a>. Hsu et al. (2003) advise that SVMs should be generated in two distinct sections. Firstly, a relatively coarse selection of parameter values should be selected which are used to train the model against the training dataset (i.e., training the model). At this point the best parameter values are identified. These parameter values are then used in the next stage (i.e., tuning the model). For tuning the model, a relatively narrow selection of parameter values are then selected which are based on the best parameter values from the model training. This allows for potentially even better model parameters to be identified.</p>
+<p><a href="https://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf">Hsu et al. (2003)</a> advise that SVMs should be generated in two distinct sections. Firstly, a relatively coarse selection of parameter values should be selected which are used to train the model against the training dataset (i.e., training the model). At this point the best parameter values are identified. These parameter values are then used in the next stage (i.e., testing the model). For this tutorial, we are not going to be tuning our SVM, but instead using a cross-validation approach when training our SVM (see below).</p>
 <p>The range of parameter values to be used is usually at the discretion of the user, although it is usually on a logarithmic scale. Hsu et al. (2003) suggest that values for cost could be <span class="math inline">\(2^{-5}\)</span>, <span class="math inline">\(2^{-3}\)</span>, … <span class="math inline">\(2^{15}\)</span>. However, for this analysis we will be using cost parameter values of <span class="math inline">\(2^{-4}\)</span>, <span class="math inline">\(2^{-3.5}\)</span>, <span class="math inline">\(2^{-3}\)</span>, … <span class="math inline">\(2^{6}\)</span>.</p>
 <p>When training the SVM, the best model parameters are chosen by those which generate an SVM which minimises species being assigned to the incorrect class (i.e., the model which correctly assigns most data points to the correct class). As part of this procedure, we will be using k-fold cross validation as way of increasing the robustness of our results. I’m not going to go into k-fold cross validation here, but for more information see <a href="https://machinelearningmastery.com/k-fold-cross-validation/">this explanation</a>.</p>
 <p>Following this, our SVM can be trained using the following code.</p>
@@ -360,61 +360,24 @@ summary(svm_trained) #show the summary of our svm training</code></pre>
 ## 19 32.00000000 0.03685714 0.007553288
 ## 20 45.25483400 0.03657143 0.007595201
 ## 21 64.00000000 0.03657143 0.007945392</code></pre>
-<p>So, as we can see from the model training, the best performing model was when cost equals 0.0883883. Here the best performance of the model was 0.0354286 which means that across all 10 folds of the cross validation for these parameter values, ~96.4571429% of our data points were assigned the correct species. This is really good, but there is the potential to further increase this by tuning our SVM.</p>
-<p>However, first we need to extract the best performing model using the following code.</p>
-<pre class="r bg-info"><code>svm_trained_model &lt;- svm_trained$best.model</code></pre>
-</div>
-<div id="tuning-the-svm" class="section level2">
-<h2>Tuning the SVM</h2>
-<p>At this stage we have trained the svm and identified the initial parameter value for cost. In keeping with the recommendations of <a href="https://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf">Hsu et al. (2003)</a> the next stage of the model development is to tune the model. At this stage, we will use a much more narrow range of parameter values for cost which should allow us to identify a better parameter value for our SVM. At this stage for the cost parameters, we now consider values in the following range which is centerd on the best model parameter from the training stage of the model development: <span class="math inline">\(2^{n - 0.5}\)</span>, <span class="math inline">\(2^{n - 0.375}\)</span>, <span class="math inline">\(2^{n - 0.25}\)</span>, … <span class="math inline">\(2^{n+0.5}\)</span>.</p>
-<p>The model tuning can be run using the following code.</p>
-<pre class="r bg-info"><code>svm_tuned  &lt;- tune.svm(species ~ ., #determine species from weight and length data
-                       data=df.train, #using the df.train dataset again
-                       tunecontrol = tune.control(cross=10),  # use k-fold cross validation with k=10
-                        cost=2^c(seq(log(svm_trained_model$cost, base=2)-0.5, 
-                                     log(svm_trained_model$cost, base=2)+0.5, by=1/8))) #select our range of cost values
-
-summary(svm_tuned)</code></pre>
-<pre class="bg-success"><code>## 
-## Parameter tuning of &#39;svm&#39;:
-## 
-## - sampling method: 10-fold cross validation 
-## 
-## - best parameters:
-##    cost
-##  0.0625
-## 
-## - best performance: 0.03514286 
-## 
-## - Detailed performance results:
-##         cost      error  dispersion
-## 1 0.06250000 0.03514286 0.008523677
-## 2 0.06815673 0.03600000 0.009253301
-## 3 0.07432544 0.03571429 0.008857655
-## 4 0.08105247 0.03571429 0.008857655
-## 5 0.08838835 0.03542857 0.008539624
-## 6 0.09638818 0.03542857 0.008539624
-## 7 0.10511205 0.03514286 0.008523677
-## 8 0.11462551 0.03514286 0.008523677
-## 9 0.12500000 0.03514286 0.008523677</code></pre>
-<p>So, as we can see from our tuning of the SVM, the best performing model has now changed to where cost equals 0.0625. Here the best performance of the model has improved to 0.0354286 which means that across all 10 folds of the cross validation for these parameter values, ~96.4571429% of our data points were assigned the correct species. At this stage we’ll move from tuning our SVM through to the testing stage.</p>
-<p>As before, we need to extract the best performing model using the following code.</p>
-<pre class="r bg-info"><code>final_svm_model &lt;- svm_tuned$best.model</code></pre>
+<p>So, as we can see from the model training, the best performing model was when cost equals 0.0883883. Here the best performance of the model was 0.0354286 which means that across all 10 folds of the cross validation for these parameter values, ~96.4571429% of our data points were assigned the correct species. Overall, this indicates that our SVM may be very good at classifying our data.</p>
+<p>At this stage, we now need to extract the best performing model using the following code.</p>
+<pre class="r bg-info"><code>final_svm_model  &lt;- svm_trained$best.model</code></pre>
 </div>
 <div id="testing-the-svm" class="section level2">
 <h2>Testing the SVM</h2>
-<p>So as we discussed above, the best forming model is where cost equals 0.0625. Here across all 10 folds of the cross validation ~96.4857143% of our data points were assigned the correct species. This can be seen using the following code.</p>
-<pre class="r bg-info"><code>svm_tuned</code></pre>
+<p>So as we discussed above, the best forming model is where cost equals 0.0883883. Here across all 10 folds of the cross validation ~96.4571429% of our data points were assigned the correct species. This can be seen using the following code.</p>
+<pre class="r bg-info"><code>svm_trained</code></pre>
 <pre class="bg-success"><code>## 
 ## Parameter tuning of &#39;svm&#39;:
 ## 
 ## - sampling method: 10-fold cross validation 
 ## 
 ## - best parameters:
-##    cost
-##  0.0625
+##        cost
+##  0.08838835
 ## 
-## - best performance: 0.03514286</code></pre>
+## - best performance: 0.03542857</code></pre>
 <p>This analysis has so far been based on the training dataset, but at this stage we can now shift our attention to the test dataset we subset from the original data. Using our SVM we can now predict which species every data point corresponds to in the test dataset and compare our predictions to the actual species in this dataset. From this we can calculate various different metrics which we can use to assess the performance of our SVM. This can be done using the following code.</p>
 <pre class="r bg-info"><code>pred=predict(final_svm_model, df.test)
 
@@ -425,56 +388,56 @@ cm</code></pre>
 ## 
 ##           Reference
 ## Prediction   A   B
-##          A 714  28
-##          B  36 722
-##                                          
-##                Accuracy : 0.9573         
-##                  95% CI : (0.9458, 0.967)
-##     No Information Rate : 0.5            
-##     P-Value [Acc &gt; NIR] : &lt;2e-16         
-##                                          
-##                   Kappa : 0.9147         
-##                                          
-##  Mcnemar&#39;s Test P-Value : 0.3816         
-##                                          
-##             Sensitivity : 0.9520         
-##             Specificity : 0.9627         
-##          Pos Pred Value : 0.9623         
-##          Neg Pred Value : 0.9525         
-##              Prevalence : 0.5000         
-##          Detection Rate : 0.4760         
-##    Detection Prevalence : 0.4947         
-##       Balanced Accuracy : 0.9573         
-##                                          
-##        &#39;Positive&#39; Class : A              
+##          A 717  28
+##          B  33 722
+##                                           
+##                Accuracy : 0.9593          
+##                  95% CI : (0.9481, 0.9688)
+##     No Information Rate : 0.5             
+##     P-Value [Acc &gt; NIR] : &lt;2e-16          
+##                                           
+##                   Kappa : 0.9187          
+##                                           
+##  Mcnemar&#39;s Test P-Value : 0.6085          
+##                                           
+##             Sensitivity : 0.9560          
+##             Specificity : 0.9627          
+##          Pos Pred Value : 0.9624          
+##          Neg Pred Value : 0.9563          
+##              Prevalence : 0.5000          
+##          Detection Rate : 0.4780          
+##    Detection Prevalence : 0.4967          
+##       Balanced Accuracy : 0.9593          
+##                                           
+##        &#39;Positive&#39; Class : A               
 ## </code></pre>
 <p>There’s an awful lot of information here, so let’s breakdown piece by piece to assess our SVM.</p>
 <p>Firstly, let’s start with the confusion matrix using the following code.</p>
 <pre class="r bg-info"><code>cm$table</code></pre>
 <pre class="bg-success"><code>##           Reference
 ## Prediction   A   B
-##          A 714  28
-##          B  36 722</code></pre>
+##          A 717  28
+##          B  33 722</code></pre>
 <p>The confusion matrix is basically a way of allowing us to visually assess whether our SVM assigns species (from the test dataset) the correctly or, if not, where any errors are occurring. From our test data, we can see that our SVM broadly does a good job of determining species, with their being no obvious issues. Our data only contains two groups (i.e., species), however if we had multiple groups (i.e., species) then the confusion matrix may be more useful in determining where any potential errors are occurring.</p>
 <p>Let’s move on to considering the overall statistics for our model, which can be called using the following code.</p>
 <pre class="r bg-info"><code>cm$overall</code></pre>
 <pre class="bg-success"><code>##       Accuracy          Kappa  AccuracyLower  AccuracyUpper   AccuracyNull 
-##      0.9573333      0.9146667      0.9458396      0.9669891      0.5000000 
+##      0.9593333      0.9186667      0.9480660      0.9687530      0.5000000 
 ## AccuracyPValue  McnemarPValue 
-##      0.0000000      0.3815739</code></pre>
+##      0.0000000      0.6085478</code></pre>
 <p>So, of the metrics here, the main ones we are going to consider are accuracy and kappa.</p>
-<p>If we start with accuracy, the accuracy of our SVM for the test dataset is 95.7333333% which is pretty similar to the accuracy we obtained from the k-fold cross validation of the SVM at the tuning stage (~96.4857143%). In other words, our SVM classifies the vast majority of our data points correctly. As such, our model does a really good job of classifying different species in our data.</p>
-<p>The next metric to consider is the kappa value. The kappa value is an alternative measure of accuracy which considers the expected and observed accuracy of our SVM. I’m not going to explain kappa in any more detail (but see <a href="https://stats.stackexchange.com/questions/82162/cohens-kappa-in-plain-english">this comprehensive explanation on stackoverflow</a>), but as with the accuracy metric the higher the value of kappa the better. As we can see, the measure of kappa for our analysis is 0.9146667. This value of kappa indicates that our SVM actually does a slightly worse job of correctly classifying species than is suggested by the SVM accuracy. However, this value is still very high and indicates that our SVM does a great job of classifying these species.</p>
+<p>If we start with accuracy, the accuracy of our SVM for the test dataset is 95.9333333% which is pretty similar to the accuracy we obtained from the k-fold cross validation of the SVM at the training stage (~96.4571429%). In other words, our SVM classifies the vast majority of our data points correctly. As such, our model does a really good job of classifying different species in our data.</p>
+<p>The next metric to consider is the kappa value. The kappa value is an alternative measure of accuracy which considers the expected and observed accuracy of our SVM. I’m not going to explain kappa in any more detail (but see <a href="https://stats.stackexchange.com/questions/82162/cohens-kappa-in-plain-english">this comprehensive explanation on stackoverflow</a>), but as with the accuracy metric the higher the value of kappa the better. As we can see, the measure of kappa for our analysis is 0.9186667. This value of kappa indicates that our SVM actually does a slightly worse job of correctly classifying species than is suggested by the SVM accuracy. However, this value is still very high and indicates that our SVM does a great job of classifying these species.</p>
 <p>Overall, these metrics are two of the most commonly used metrics for assessing the performance of an SVM. However, additional metrics (e.g., specificity) that we aren’t going to consider here can be shown by using the following code.</p>
 <pre class="r bg-info"><code>cm$byClass</code></pre>
 <pre class="bg-success"><code>##          Sensitivity          Specificity       Pos Pred Value 
-##            0.9520000            0.9626667            0.9622642 
+##            0.9560000            0.9626667            0.9624161 
 ##       Neg Pred Value            Precision               Recall 
-##            0.9525066            0.9622642            0.9520000 
+##            0.9562914            0.9624161            0.9560000 
 ##                   F1           Prevalence       Detection Rate 
-##            0.9571046            0.5000000            0.4760000 
+##            0.9591973            0.5000000            0.4780000 
 ## Detection Prevalence    Balanced Accuracy 
-##            0.4946667            0.9573333</code></pre>
+##            0.4966667            0.9593333</code></pre>
 </div>
 <div id="concluding-remarks" class="section level2">
 <h2>Concluding remarks</h2>

@@ -122,7 +122,7 @@ For this introductory tutorial and we will be using a linear kernel.
 
 The next decision we need to make is what values for the cost parameter we should specify. For a refresher on this parameter, see the [initial explanation of support vector machines (SVMs)](https://benjburgess.github.io/svm). Fortunately, the SVM package we are using (`e1071`) allows us to test various different parameter values and then select the best ones.
 
-For the training and testing of the SVM we will be following the advice of [Hsu et al. (2003)](https://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf). Hsu et al. (2003) advise that SVMs should be generated in two distinct sections. Firstly, a relatively coarse selection of parameter values should be selected which are used to train the model against the training dataset (i.e., training the model). At this point the best parameter values are identified. These parameter values are then used in the next stage (i.e., tuning the model). For tuning the model, a relatively narrow selection of parameter values are then selected which are based on the best parameter values from the model training. This allows for potentially even better model parameters to be identified. 
+[Hsu et al. (2003)](https://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf) advise that SVMs should be generated in two distinct sections. Firstly, a relatively coarse selection of parameter values should be selected which are used to train the model against the training dataset (i.e., training the model). At this point the best parameter values are identified. These parameter values are then used in the next stage (i.e., testing the model). For this tutorial, we are not going to be tuning our SVM, but instead using a cross-validation approach when training our SVM (see below).
 
 The range of parameter values to be used is usually at the discretion of the user, although it is usually on a logarithmic scale. Hsu et al. (2003) suggest that values for cost could be $2^{-5}$, $2^{-3}$, ... $2^{15}$. However, for this analysis we will be using cost parameter values of $2^{-4}$, $2^{-3.5}$, $2^{-3}$, ... $2^{6}$.
 
@@ -144,54 +144,25 @@ summary(svm_trained) #show the summary of our svm training
 
 
 
-So, as we can see from the model training, the best performing model was when cost equals `r as.numeric(svm_trained$best.parameters[1])`. Here the best performance of the model was `r as.numeric(svm_trained$best.performance)` which means that across all 10 folds of the cross validation for these parameter values, ~`r 100*(1-as.numeric(svm_trained$best.performance))`% of our data points were assigned the correct species. This is really good, but there is the potential to further increase this by tuning our SVM. 
+So, as we can see from the model training, the best performing model was when cost equals `r as.numeric(svm_trained$best.parameters[1])`. Here the best performance of the model was `r as.numeric(svm_trained$best.performance)` which means that across all 10 folds of the cross validation for these parameter values, ~`r 100*(1-as.numeric(svm_trained$best.performance))`% of our data points were assigned the correct species. Overall, this indicates that our SVM may be very good at classifying our data.
 
-However, first we need to extract the best performing model using the following code.
-
-
-```{r class.source="bg-info", class.output="bg-success"}
-
-svm_trained_model <- svm_trained$best.model
-
-```
-
-
-## Tuning the SVM
-
-At this stage we have trained the svm and identified the initial parameter value for cost. In keeping with the recommendations of [Hsu et al. (2003)](https://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf) the next stage of the model development is to tune the model. At this stage, we will use a much more narrow range of parameter values for cost which should allow us to identify a better parameter value for our SVM. At this stage for the cost parameters, we now consider values in the following range which is centerd on the best model parameter from the training stage of the model development: $2^{n - 0.5}$, $2^{n - 0.375}$, $2^{n - 0.25}$, ... $2^{n+0.5}$. 
-
-The model tuning can be run using the following code.
-
+At this stage, we now need to extract the best performing model using the following code.
 
 
 ```{r class.source="bg-info", class.output="bg-success"}
-svm_tuned  <- tune.svm(species ~ ., #determine species from weight and length data
-                       data=df.train, #using the df.train dataset again
-                       tunecontrol = tune.control(cross=10),  # use k-fold cross validation with k=10
-                        cost=2^c(seq(log(svm_trained_model$cost, base=2)-0.5, 
-                                     log(svm_trained_model$cost, base=2)+0.5, by=1/8))) #select our range of cost values
 
-summary(svm_tuned)
+final_svm_model  <- svm_trained$best.model
 
 ```
-
-So, as we can see from our tuning of the SVM, the best performing model has now changed to where cost equals `r as.numeric(svm_tuned$best.parameters[1])`. Here the best performance of the model has improved to `r as.numeric(svm_trained$best.performance)` which means that across all 10 folds of the cross validation for these parameter values, ~`r 100*(1-as.numeric(svm_trained$best.performance))`% of our data points were assigned the correct species. At this stage we'll move from tuning our SVM through to the testing stage.
-
-As before, we need to extract the best performing model using the following code.
-
-```{r class.source="bg-info", class.output="bg-success"}
-final_svm_model <- svm_tuned$best.model
-```
-
 
 
 
 ## Testing the SVM
 
-So as we discussed above, the best forming model is where cost equals `r as.numeric(svm_tuned$best.parameters[1])`. Here across all 10 folds of the cross validation ~`r 100*(1-as.numeric(svm_tuned$best.performance))`% of our data points were assigned the correct species. This can be seen using the following code.
+So as we discussed above, the best forming model is where cost equals `r as.numeric(svm_trained$best.parameters[1])`. Here across all 10 folds of the cross validation ~`r 100*(1-as.numeric(svm_trained$best.performance))`% of our data points were assigned the correct species. This can be seen using the following code.
 
 ```{r class.source="bg-info", class.output="bg-success"}
-svm_tuned
+svm_trained
 ```
 
 This analysis has so far been based on the training dataset, but at this stage we can now shift our attention to the test dataset we subset from the original data. Using our SVM we can now predict which species every data point corresponds to in the test dataset and compare our predictions to the actual species in this dataset. From this we can calculate various different metrics which we can use to assess the performance of our SVM. This can be done using the following code.
@@ -230,7 +201,7 @@ cm$overall
 
 So, of the metrics here, the main ones we are going to consider are accuracy and kappa.
 
-If we start with accuracy, the accuracy of our SVM for the test dataset is `r as.numeric(cm$overall[1])*100`% which is pretty similar to the accuracy we obtained from the k-fold cross validation of the SVM at the tuning stage (~`r 100*(1-as.numeric(svm_tuned$best.performance))`%). In other words, our SVM classifies the vast majority of our data points correctly. As such, our model does a really good job of classifying different species in our data. 
+If we start with accuracy, the accuracy of our SVM for the test dataset is `r as.numeric(cm$overall[1])*100`% which is pretty similar to the accuracy we obtained from the k-fold cross validation of the SVM at the training stage (~`r 100*(1-as.numeric(svm_trained$best.performance))`%). In other words, our SVM classifies the vast majority of our data points correctly. As such, our model does a really good job of classifying different species in our data. 
 
 The next metric to consider is the kappa value. The kappa value is an alternative measure of accuracy which considers the expected and observed accuracy of our SVM. I'm not going to explain kappa in any more detail (but see [this comprehensive explanation on stackoverflow](https://stats.stackexchange.com/questions/82162/cohens-kappa-in-plain-english)), but as with the accuracy metric the higher the value of kappa the better. As we can see, the measure of kappa for our analysis is `r as.numeric(cm$overall[2])`. This value of kappa indicates that our SVM actually does a `r if(as.numeric(cm$overall[2]) >= as.numeric(cm$overall[1])){"slightly better"}``r if(as.numeric(cm$overall[2]) < as.numeric(cm$overall[1])){"slightly worse"}` job of correctly classifying species than is suggested by the SVM accuracy. However, this value is still very high and indicates that our SVM does a great job of classifying these species.
 
