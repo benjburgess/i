@@ -47,11 +47,13 @@ The package can be installed from github using the following code:
 
 ```{r class.source = "bg-info", message=FALSE, warning=FALSE}
 
-#if devtools is not installed on your machine then it can be installed via:
+##if devtools is not installed on your machine then it can be installed via the following code:
 #install.packages("devtools")
+#library(devtools)
+#install_github("benjburgess/multiplestressR")
 
-library(devtools)
-install_github("benjburgess/multiplestressR")
+##Note that the above hashtags will need to be removed in order for the code to run
+
 library(multiplestressR)
 
 ```
@@ -61,23 +63,12 @@ Barring any issues, the package is now installed.
 ## Data
 
 The next step is to load data into *R*. 
-For this tutorial, we will be using an example dataset, which can be generated using the following code:
+For this tutorial, we will be using an example dataset which is provided by the multiplestressR package, which can be loaded using the following code:
 
 
 ```{r class.source="bg-info", class.output="bg-success"}
 
-df <- data.frame(Sample_Size_Control            = c(3, 5, 4, 4, 8, 8, 6, 8),
-                 Standard_Deviation_Control     = c(0.05, 0.10, 0.12, 0.19, 0.09, 0.06, 0.07, 0.13),
-                 Mean_Control                   = c(0.90, 0.92, 0.75, 0.86, 0.80, 0.97, 0.94, 0.78),
-                 Sample_Size_StressorA          = c(3, 5, 4, 4, 8, 8, 6, 8),
-                 Standard_Deviation_StressorA   = c(0.14, 0.12, 0.16, 0.13, 0.11, 0.11, 0.08, 0.14),
-                 Mean_StressorA                 = c(0.66, 0.72, 0.71, 0.67, 0.75, 0.50, 0.63, 0.61),
-                 Sample_Size_StressorB          = c(3, 5, 4, 4, 8, 8, 6, 8),
-                 Standard_Deviation_StressorB   = c(0.12, 0.08, 0.14, 0.14, 0.12, 0.09, 0.13, 0.19),
-                 Mean_StressorB                 = c(0.69, 0.73, 0.62, 0.69, 0.77, 0.54, 0.68, 0.53),
-                 Sample_Size_StressorsAB        = c(3, 5, 4, 4, 8, 8, 6, 8),
-                 Standard_Deviation_StressorsAB = c(0.08, 0.18, 0.21, 0.10, 0.10, 0.11, 0.13, 0.14),
-                 Mean_StressorsAB               = c(0.73, 0.44, 0.58, 0.45, 0.50, 0.48, 0.60, 0.41))
+df <- multiplestressR::survival
 
 
 ```
@@ -90,9 +81,9 @@ head(df)
 
 ```
 
-This data could correspond to any number of response metrics (e.g., growth or survival rates). However, it may be assumed that this generated dataset corresponds to population densities of a given species.
+This dataset has been generated (i.e., does not come from 'real-world' experiments), but reflects survival data for 250 unique experiments. For this dataset, survival rates are measured for organisms exposed to i) control conditions, ii) altered temperature, iii) altered pH, or iv) altered temperature and pH together.
 
-As you can see, the dataframe contains data for eight interactions (rows) and twelve variables (columns), with three columns for each treatment (X_Control, X_StressorA, X_StressorB, X_StressorsAB). For each treatment, there is a column for treatment means (Mean_X), treatment standard deviation (Standard_Deviation_X), and treatment sample size (Sample_Size_X). It is important to note that any dataset must contain these three variables; means must be used (i.e., not medians or other metrics), standard deviation must be reported (i.e., not standard error or confidence intervals), and sample sizes must be reported.
+As you can see, the dataframe contains data for eight interactions (rows) and twelve variables (columns), with three columns for each treatment (X_Control, X_Temperature, X_pH, X_Temperature_pH). For each treatment, there is a column for treatment means (Mean_X), treatment standard deviation (Standard_Deviation_X), and treatment sample size (Sample_Size_X). It is important to note that any dataset must contain these three variables; means must be used (i.e., not medians or other metrics), standard deviation must be reported (i.e., not standard error or confidence intervals), and sample sizes must be reported.
 
 
 ## Null models
@@ -112,15 +103,15 @@ The additive null model can be run using the following code:
 df  <- effect_size_additive(Control_N                = df$Sample_Size_Control,           
                             Control_SD               = df$Standard_Deviation_Control,    
                             Control_Mean             = df$Mean_Control,                  
-                            StressorA_N              = df$Sample_Size_StressorA,         
-                            StressorA_SD             = df$Standard_Deviation_StressorA,  
-                            StressorA_Mean           = df$Mean_StressorA,                
-                            StressorB_N              = df$Sample_Size_StressorB,         
-                            StressorB_SD             = df$Standard_Deviation_StressorB,  
-                            StressorB_Mean           = df$Mean_StressorB,                
-                            StressorsAB_N            = df$Sample_Size_StressorsAB,       
-                            StressorsAB_SD           = df$Standard_Deviation_StressorsAB,
-                            StressorsAB_Mean         = df$Mean_StressorsAB,
+                            StressorA_N              = df$Sample_Size_Temperature,         
+                            StressorA_SD             = df$Standard_Deviation_Temperature,  
+                            StressorA_Mean           = df$Mean_Temperature,                
+                            StressorB_N              = df$Sample_Size_pH,         
+                            StressorB_SD             = df$Standard_Deviation_pH,  
+                            StressorB_Mean           = df$Mean_pH,                
+                            StressorsAB_N            = df$Sample_Size_Temperature_pH,       
+                            StressorsAB_SD           = df$Standard_Deviation_Temperature_pH,
+                            StressorsAB_Mean         = df$Mean_Temperature_pH,
                             Small_Sample_Correction  = TRUE,
                             Significance_Level       = 0.05)
 head(df)
@@ -218,40 +209,31 @@ Below is an example of the code which can be used to conduct the same analysis a
 
 ```{r class.source="bg-info", class.output="bg-success", message=FALSE, warning=FALSE}
 
-#if devtools is not installed on your machine then it can be installed via:
+##if devtools is not installed on your machine then it can be installed via the following code:
 #install.packages("devtools")
+#library(devtools)
+#install_github("benjburgess/multiplestressR")
 
-library(devtools)
-install_github("benjburgess/multiplestressR")
+##Note that the above hashtags will need to be removed in order for the code to run
+
 library(multiplestressR)
 
-dfm <- data.frame(Sample_Size_Control           = c(3, 5, 4, 4, 8, 8, 6, 8),
-                 Standard_Deviation_Control     = c(0.05, 0.10, 0.12, 0.19, 0.09, 0.06, 0.07, 0.13),
-                 Mean_Control                   = c(0.90, 0.92, 0.75, 0.86, 0.80, 0.97, 0.94, 0.78),
-                 Sample_Size_StressorA          = c(3, 5, 4, 4, 8, 8, 6, 8),
-                 Standard_Deviation_StressorA   = c(0.14, 0.12, 0.16, 0.13, 0.11, 0.11, 0.08, 0.14),
-                 Mean_StressorA                 = c(0.66, 0.72, 0.71, 0.67, 0.75, 0.50, 0.63, 0.61),
-                 Sample_Size_StressorB          = c(3, 5, 4, 4, 8, 8, 6, 8),
-                 Standard_Deviation_StressorB   = c(0.12, 0.08, 0.14, 0.14, 0.12, 0.09, 0.13, 0.19),
-                 Mean_StressorB                 = c(0.69, 0.73, 0.62, 0.69, 0.77, 0.54, 0.68, 0.53),
-                 Sample_Size_StressorsAB        = c(3, 5, 4, 4, 8, 8, 6, 8),
-                 Standard_Deviation_StressorsAB = c(0.08, 0.18, 0.21, 0.10, 0.10, 0.11, 0.13, 0.14),
-                 Mean_StressorsAB               = c(0.73, 0.44, 0.58, 0.45, 0.50, 0.48, 0.60, 0.41))
+dfm <- multiplestressR::survival
 
 head(dfm)
 
 dfm <- effect_size_multiplicative(Control_N                = dfm$Sample_Size_Control,           
                                   Control_SD               = dfm$Standard_Deviation_Control,    
                                   Control_Mean             = dfm$Mean_Control,                  
-                                  StressorA_N              = dfm$Sample_Size_StressorA,         
-                                  StressorA_SD             = dfm$Standard_Deviation_StressorA,  
-                                  StressorA_Mean           = dfm$Mean_StressorA,                
-                                  StressorB_N              = dfm$Sample_Size_StressorB,         
-                                  StressorB_SD             = dfm$Standard_Deviation_StressorB,  
-                                  StressorB_Mean           = dfm$Mean_StressorB,                
-                                  StressorsAB_N            = dfm$Sample_Size_StressorsAB,       
-                                  StressorsAB_SD           = dfm$Standard_Deviation_StressorsAB,
-                                  StressorsAB_Mean         = dfm$Mean_StressorsAB,
+                                  StressorA_N              = dfm$Sample_Size_Temperature,         
+                                  StressorA_SD             = dfm$Standard_Deviation_Temperature,  
+                                  StressorA_Mean           = dfm$Mean_Temperature,                
+                                  StressorB_N              = dfm$Sample_Size_pH,         
+                                  StressorB_SD             = dfm$Standard_Deviation_pH,  
+                                  StressorB_Mean           = dfm$Mean_pH,                
+                                  StressorsAB_N            = dfm$Sample_Size_Temperature_pH,       
+                                  StressorsAB_SD           = dfm$Standard_Deviation_Temperature_pH,
+                                  StressorsAB_Mean         = dfm$Mean_Temperature_pH,
                                   Significance_Level       = 0.05)
 
 head(dfm)
