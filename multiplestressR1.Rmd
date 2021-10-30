@@ -41,18 +41,11 @@ Throughout this tutorial, R code is outlined in blue, successful output in green
 
 ## Installation
 
-The first thing that needs to be done is to install the `multiplestressR` package. Currently this package is only available via github, though it will soon be available via CRAN.
+The first thing that needs to be done is to install the `multiplestressR` package. This can be installed from CRAN using the following code.
 
 The package can be installed from github using the following code:
 
 ```{r class.source = "bg-info", message=FALSE, warning=FALSE}
-
-##if devtools is not installed on your machine then it can be installed via the following code:
-#install.packages("devtools")
-#library(devtools)
-#install_github("benjburgess/multiplestressR")
-
-##Note that the above hashtags will need to be removed in order for the code to run
 
 library(multiplestressR)
 
@@ -177,11 +170,11 @@ The summary plots can be generated using the following code:
 
 ```{r class.source="bg-info", class.output="bg-success"}
 
-dfm_plots <- summary_plots(effect_size_dataframe = df,
+dfa_plots <- summary_plots(effect_size_dataframe = df,
                            Small_Sample_Correction = TRUE,
                            Significance_Level = 0.05)
 
-dfm_plots
+dfa_plots
 ```
 
 For this analysis, only the first two plots (going clockwise from top-left) are overly useful for any interpretation, although the final three plots are likely to be useful to those researchers conducting a meta-analysis.
@@ -193,6 +186,18 @@ The second figure plots `Interaction_Effect_Size` against median treatment sampl
 It is also important to note that a *null* interaction classification does not necessarily mean that no interaction is occurring. A null classification may instead be assigned due to an experiment having an insufficient power to detect a given interaction (i.e., insufficient sample sizes to statistically determine whether an interaction between stressors was occurring).
 
 For more information on the role of sample sizes in determining interaction classifications and critical effect sizes, see [Burgess et al. (2021a)](https://www.biorxiv.org/content/10.1101/2021.07.21.453207v1.abstract).
+
+Finally, all these figures are generated using ggplot, as such they can be altered by the user. For instance, if a user wishes to use the second figure with the legend shown and using a logarithmic scale on the x-axis, this can be done using the following code.
+
+```{r class.source="bg-info", class.output="bg-success"}
+
+library(ggplot2)
+
+dfa_plots[[2]] + 
+  scale_x_continuous(trans='log10') +
+  theme(legend.position="top",
+        legend.title = element_blank())
+```
 
 
 ## Concluding remarks
