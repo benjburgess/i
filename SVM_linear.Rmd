@@ -19,9 +19,7 @@ output:
 
 As I've detailed in the [initial explanation of support vector machines (SVMs)](https://benjburgess.github.io/svm), SVMs are a machine learning tool which can be used to classify data into two or more different groups. Outlined below is an example of how an SVM approach can be applied to a relatively simple dataset. For this example, we shall be attempting to build a SVM which is capable of accurately classifying two species based upon their length (in millimetres) and their weight (in kilograms). Here, for simplicity, our species are simply 'A' or 'B'. Here, each data point corresponds to an individual of either species 'A' or 'B' and the corresponding weight and length of that individual.
 
-Throughout this tutorial the majority of the concepts I refer to are explained in more detail in the [initial explanation of support vector machines (SVMs)](https://benjburgess.github.io/svm). Wherever this is not the case, I've added in references and links to other sources. Throughout this tutorial, code chunks will have a blue background and output will have a green background.
-
-This tutorial is meant to be a relatively simple example of SVMs. For an example of SVMs with more complex data, see the [Advanced Tutorial on SVMs](https://benjburgess.github.io/i/SVM_radial).
+Throughout this tutorial, code chunks will have a blue background and output will have a green background. This tutorial is meant to be a relatively simple example of SVMs. For an example of SVMs with more complex data, see the [Advanced Tutorial on SVMs](https://benjburgess.github.io/i/SVM_radial).
 
 
 ## Packages and set.seed()
@@ -29,7 +27,6 @@ This tutorial is meant to be a relatively simple example of SVMs. For an example
 Firstly, we need to install the various packages we need for this tutorial. If any of these packages are not installed in your local machine, they can be installed via the `install.packages()` function. We will also set the seed for this code, with this simply to allow reproducibility of our results.
 
 ```{r class.source = "bg-info", message=FALSE, warning=FALSE}
-library(e1071)
 library(ggplot2)
 library(scales)
 library(caret)
@@ -116,42 +113,48 @@ As we can see, the dataset has now been rescaled and centred around 0 for both t
 
 ## Training the SVM
 
-At this point we are now ready to start training our SVM. However, we have to make several decisions about our model. Firstly, we have to decide which kernel to use. For a refresher on kernel choice, see the [initial explanation of support vector machines (SVMs)](https://benjburgess.github.io/svm). 
+At this point we are now ready to start training our SVM. However, we have to make several decisions about our model. Firstly, we have to decide which kernel to use. There are many resources which discuss kernel choice, see links provided on the [initial page for support vector machines (SVMs)](https://benjburgess.github.io/svm). 
 
 For this introductory tutorial and we will be using a linear kernel.
 
-The next decision we need to make is what values for the cost parameter we should specify. For a refresher on this parameter, see the [initial explanation of support vector machines (SVMs)](https://benjburgess.github.io/svm). Fortunately, the SVM package we are using (`e1071`) allows us to test various different parameter values and then select the best ones.
+The next decision we need to make is what values for the cost parameter we should specify. Fortunately, the SVM package we are using (`caret`) allows us to test various different parameter values and then select the best ones.
 
 [Hsu et al. (2003)](https://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf) advise that SVMs should be generated in two distinct sections. Firstly, a relatively coarse selection of parameter values should be selected which are used to train the model against the training dataset (i.e., training the model). At this point the best parameter values are identified. These parameter values are then used in the next stage (i.e., testing the model). For this tutorial, we are not going to be tuning our SVM, but instead using a cross-validation approach when training our SVM (see below).
 
-The range of parameter values to be used is usually at the discretion of the user, although it is usually on a logarithmic scale. Hsu et al. (2003) suggest that values for cost could be $2^{-5}$, $2^{-3}$, ... $2^{15}$. However, for this analysis we will be using cost parameter values of $2^{-4}$, $2^{-3.5}$, $2^{-3}$, ... $2^{6}$.
+The range of parameter values to be used is usually at the discretion of the user, although it is usually on a logarithmic scale. Hsu et al. (2003) suggest that values for cost could be $2^{-5}$, $2^{-3}$, ... $2^{15}$. However, for this analysis we will be using cost parameter values of $2^{-2}$, $2^{-1}$, $2^{0}$, ... $2^{7}$.
 
-When training the SVM, the best model parameters are chosen by those which generate an SVM which minimises species being assigned to the incorrect class (i.e., the model which correctly assigns most data points to the correct class). As part of this procedure, we will be using k-fold cross validation as way of increasing the robustness of our results. I'm not going to go into k-fold cross validation here, but for more information see [this explanation](https://machinelearningmastery.com/k-fold-cross-validation/).
+When training the SVM, the best model parameters are chosen by those which generate an SVM which minimises species being assigned to the incorrect class (i.e., maximise accuracy and minimize ). As part of this procedure, we will be using k-fold cross validation as way of increasing the robustness of our results. I'm not going to go into k-fold cross validation here, but for more information see [this explanation](https://machinelearningmastery.com/k-fold-cross-validation/).
 
 Following this, our SVM can be trained using the following code.
 
 
 ```{r class.source="bg-info", class.output="bg-success"}
-svm_trained  <- tune.svm(species ~ ., #determine species from weight and length data
-                       data=df.train, #using the df.train dataset
-                       tunecontrol = tune.control(cross=10), # use k-fold cross validation with k=10
-                       cost=2^c(seq(-4, 6, by=0.5))) #select our range of cost values
 
-summary(svm_trained) #show the summary of our svm training
+#Choose the parameter values to search.
+svm_grid <- expand.grid(C = 2^(-2:7))
+
+svm_trained <- train(species ~., 
+                     data = df.train, 
+                     method = "svmLinear", 
+                     trControl = trainControl(method="repeatedcv", number=10, repeats=3), 
+                     tuneGrid = svm_grid)
+
+svm_trained
+#show the summary of our svm training
 
 ```
 
 
 
 
-So, as we can see from the model training, the best performing model was when cost equals `r as.numeric(svm_trained$best.parameters[1])`. Here the best performance of the model was `r as.numeric(svm_trained$best.performance)` which means that across all 10 folds of the cross validation for these parameter values, ~`r 100*(1-as.numeric(svm_trained$best.performance))`% of our data points were assigned the correct species. Overall, this indicates that our SVM may be very good at classifying our data.
+So, as we can see from the model training, the best performing model was when cost equals `r as.numeric(svm_trained$bestTune[1])`. Here the best performance of the model was `r as.numeric(max(svm_trained$results$Accuracy))` which means that across all 10 folds of the cross validation for these parameter values, ~`r 100*(1-as.numeric(max(svm_trained$results$Accuracy)))`% of our data points were assigned the correct species. Overall, this indicates that our SVM may be very good at classifying our data.
 
 At this stage, we now need to extract the best performing model using the following code.
 
 
 ```{r class.source="bg-info", class.output="bg-success"}
 
-final_svm_model  <- svm_trained$best.model
+final_svm_model  <- svm_trained$bestTune
 
 ```
 
@@ -159,7 +162,7 @@ final_svm_model  <- svm_trained$best.model
 
 ## Testing the SVM
 
-So as we discussed above, the best forming model is where cost equals `r as.numeric(svm_trained$best.parameters[1])`. Here across all 10 folds of the cross validation ~`r 100*(1-as.numeric(svm_trained$best.performance))`% of our data points were assigned the correct species. This can be seen using the following code.
+So as we discussed above, the best forming model is where cost equals `r as.numeric(svm_trained$bestTune[1])`. Here across all 10 folds of the cross validation ~`r 100*(as.numeric(max(svm_trained$results$Accuracy)))`% of our data points were assigned the correct species. This can be seen using the following code.
 
 ```{r class.source="bg-info", class.output="bg-success"}
 svm_trained
@@ -169,7 +172,7 @@ This analysis has so far been based on the training dataset, but at this stage w
 
 
 ```{r class.source="bg-info", class.output="bg-success"}
-pred=predict(final_svm_model, df.test)
+pred=predict(svm_trained, df.test)
 
 cm <- caret::confusionMatrix(pred, df.test$species) 
 #this uses the confusionMatrix function from the caret package
@@ -201,7 +204,7 @@ cm$overall
 
 So, of the metrics here, the main ones we are going to consider are accuracy and kappa.
 
-If we start with accuracy, the accuracy of our SVM for the test dataset is `r as.numeric(cm$overall[1])*100`% which is pretty similar to the accuracy we obtained from the k-fold cross validation of the SVM at the training stage (~`r 100*(1-as.numeric(svm_trained$best.performance))`%). In other words, our SVM classifies the vast majority of our data points correctly. As such, our model does a really good job of classifying different species in our data. 
+If we start with accuracy, the accuracy of our SVM for the test dataset is `r as.numeric(cm$overall[1])*100`% which is pretty similar to the accuracy we obtained from the k-fold cross validation of the SVM at the training stage. In other words, our SVM classifies the vast majority of our data points correctly. As such, our model does a really good job of classifying different species in our data. 
 
 The next metric to consider is the kappa value. The kappa value is an alternative measure of accuracy which considers the expected and observed accuracy of our SVM. I'm not going to explain kappa in any more detail (but see [this comprehensive explanation on stackoverflow](https://stats.stackexchange.com/questions/82162/cohens-kappa-in-plain-english)), but as with the accuracy metric the higher the value of kappa the better. As we can see, the measure of kappa for our analysis is `r as.numeric(cm$overall[2])`. This value of kappa indicates that our SVM actually does a `r if(as.numeric(cm$overall[2]) >= as.numeric(cm$overall[1])){"slightly better"}``r if(as.numeric(cm$overall[2]) < as.numeric(cm$overall[1])){"slightly worse"}` job of correctly classifying species than is suggested by the SVM accuracy. However, this value is still very high and indicates that our SVM does a great job of classifying these species.
 
@@ -216,7 +219,7 @@ cm$byClass
 
 ## Concluding remarks
 
-Overall, our SVM does a great job of correctly classifying the two species in our dataset. In this there is a relatively defined boundary between the two species, hence the SVM is able to very accurately classify our data. If there was not such a clearly defined boundary, then we might want to consider using a different kernel (e.g., radial or polynomial as opposed to linear). Similarly, if we had more than two species we may find that our SVM doesn't do such a good job of classifying our data.
+Overall, our SVM does a great job of correctly classifying the two species in our dataset. In this example there is a relatively defined boundary between the two species, hence the SVM is able to very accurately classify our data. If there was not such a clearly defined boundary, then we might have difficulty in achieving such a high accuracy with our SVM. Similarly, if we had more than two species we may find that our SVM doesn't do such a good job of classifying our data.
 
 This introductory tutorial for SVMs uses a relatively straight-forward example with a very high accuracy for our model. However, this is not necessarily reflective of real-world data which is often much 'messier'. As such, I have also put together an [advanced tutorial](https://benjburgess.github.io/i/SVM_radial) for a real-world dataset which uses an SVM to classify the quality of wines. This tutorial outlines various additional data cleaning approaches (e.g., SMOTE, SCUT, and dummy variables) that need to be considered. Similarly, this tutorial illustrates the potential ramifications of using SVMs when there is limited data which is 'messy' with no clearly defined boundaries between multiple (i.e., more than two) different classes or groups.
 
