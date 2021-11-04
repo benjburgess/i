@@ -41,11 +41,17 @@ Throughout this tutorial, R code is outlined in blue, successful output in green
 
 ## Installation
 
-The first thing that needs to be done is to install the `multiplestressR` package. This can be installed from CRAN using the following code.
+The first thing that needs to be done is to install the `multiplestressR` package. This can be installed from CRAN using the following code:
 
-The package can be installed from github using the following code:
+
+
 
 ```{r class.source = "bg-info", message=FALSE, warning=FALSE}
+
+
+#install.packages("multiplestressR")
+
+##Note that to install the multiplestressR package from CRAN, the above line must be uncommented.
 
 library(multiplestressR)
 
@@ -179,7 +185,7 @@ dfa_plots
 
 For this analysis, only the first two plots (going clockwise from top-left) are overly useful for any interpretation, although the final three plots are likely to be useful to those researchers conducting a meta-analysis.
 
-The first figure reveals the frequency of the different interaction classifications for interactions within a dataset. For this analysis it is apparent that 25% (2/8) of interactions are assigned an *antagonistic* interaction class, 12.5% (1/8) of interactions are assigned a *synergistic* class, while 62.5% (5/8) interactions are assigned a *null* (i.e., *additive*) interaction class. 
+The first figure reveals the frequency of the different interaction classifications for interactions within a dataset. For this analysis it is apparent that `r 100*(dim(subset(df, Interaction_Classification == "Null"))[1]/dim(df)[1])`% of interactions are assigned an *null* (i.e., additive) interaction class, `r 100*(dim(subset(df, Interaction_Classification == "Antagonistic"))[1]/dim(df)[1])`% of interactions are assigned a *antagonistic* class, `r 100*(dim(subset(df, Interaction_Classification == "Synergistic"))[1]/dim(df)[1])`% of interactions are assigned a *synergistic* interaction class, while `r 100*(dim(subset(df, Interaction_Classification == "Reversal"))[1]/dim(df)[1])`% of interactions are assigned a *reversal* interaction class. 
 
 The second figure plots `Interaction_Effect_Size` against median treatment sample sizes (averaged across all four treatments). On this figure, black lines indicate the critical effect size for a given sample size (i.e., the minimum effect size required in order for an interaction to be significantly different to zero). Only those interactions which have interaction effect sizes greater than the critical effect size have been assigned a *non-null* interaction classification. 
 
@@ -214,12 +220,9 @@ Below is an example of the code which can be used to conduct the same analysis a
 
 ```{r class.source="bg-info", class.output="bg-success", message=FALSE, warning=FALSE}
 
-##if devtools is not installed on your machine then it can be installed via the following code:
-#install.packages("devtools")
-#library(devtools)
-#install_github("benjburgess/multiplestressR")
+#install.packages("multiplestressR")
 
-##Note that the above hashtags will need to be removed in order for the code to run
+##Note that to install the multiplestressR package from CRAN, the above line must be uncommented.
 
 library(multiplestressR)
 
