@@ -17,7 +17,7 @@ output:
 
 ## Introduction
 
-As I've detailed in the [introduction to support vector machines (SVMs)](https://benjburgess.github.io/svm), SVMs are a machine learning tool which can be used to classify data into two or more different groups. Outlined below is an example of how an SVM approach can be applied to a relatively complex dataset, in this case considering the properties of over 6000 different wines. Here, we will build a SVM capable of accurately classifying the quality of wine based on its chemical properties. Here, quality is a category between 1 and 10, with one reflecting the lowest quality wine and 10 the highest quality wine. For this example, we will be using `R`.
+As I've detailed in the [introduction to support vector machines (SVMs)](https://benjburgess.github.io/data/index/svm), SVMs are a machine learning tool which can be used to classify data into two or more different groups. Outlined below is an example of how an SVM approach can be applied to a relatively complex dataset, in this case considering the properties of over 6000 different wines. Here, we will build a SVM capable of accurately classifying the quality of wine based on its chemical properties. Here, quality is a category between 1 and 10, with one reflecting the lowest quality wine and 10 the highest quality wine. For this example, we will be using `R`.
 
 The first thing to do is download the data and save it to your local machine. The data is available from [Kaggle](https://www.kaggle.com/shelvigarg/wine-quality-dataset) and is from an academic paper by [Cortez et al. (2009)](https://www.sciencedirect.com/science/article/abs/pii/S0167923609001377).
 
@@ -181,11 +181,11 @@ ggplot(df.train, aes(x=as.numeric(as.character(quality)))) +
 
 ## Training the SVM
 
-At this point we are now ready to start training our SVM. However, we have to make several decisions about our model. Firstly, we have to decide which kernel to use. Firstly, we have to decide which kernel to use. There are many resources which discuss kernel choice, see links provided on the [initial page for support vector machines (SVMs)](https://benjburgess.github.io/svm). 
+At this point we are now ready to start training our SVM. However, we have to make several decisions about our model. Firstly, we have to decide which kernel to use. Firstly, we have to decide which kernel to use. There are many resources which discuss kernel choice, see links provided on the [initial page for support vector machines (SVMs)](https://benjburgess.github.io/data/index/svm). 
 
 For this analysis, we will be using a radial kernel. 
 
-The next decision we need to make is what values for the cost and sigma parameters we should specify. Again, for more information on these parameters, consult the links provided on the [initial page for support vector machines (SVMs)](https://benjburgess.github.io/svm).  Fortunately, the SVM package we are using (`caret`) allows us to test various different parameters and then select the best ones.
+The next decision we need to make is what values for the cost and sigma parameters we should specify. Again, for more information on these parameters, consult the links provided on the [initial page for support vector machines (SVMs)](https://benjburgess.github.io/data/index/svm).  Fortunately, the SVM package we are using (`caret`) allows us to test various different parameters and then select the best ones.
 
 [Hsu et al. (2003)](https://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf) advise that SVMs should be generated in two distinct sections. Firstly, a relatively coarse selection of parameter values should be selected which are used to train the model against the training dataset (i.e., training the model). At this point the best parameter values are identified. These parameter values are then used in the next stage (i.e., testing the model). For this tutorial, we are not going to be tuning our SVM, but instead using a cross-validation approach when training our SVM (see below).
 

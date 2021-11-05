@@ -17,7 +17,7 @@ output:
 
 ## Introduction
 
-As I've detailed in the [introduction to support vector machines (SVMs)](https://benjburgess.github.io/svm), SVMs are a machine learning tool which can be used to classify data into two or more different groups. Outlined below is an example of how an SVM approach can be applied to a relatively simple dataset. For this example, we shall be attempting to build a SVM which is capable of accurately classifying two species based upon their length (in millimetres) and their weight (in kilograms). Here, for simplicity, our species are simply 'A' or 'B'. Here, each data point corresponds to an individual of either species 'A' or 'B' and the corresponding weight and length of that individual.
+As I've detailed in the [introduction to support vector machines (SVMs)](https://benjburgess.github.io/data/index/svm), SVMs are a machine learning tool which can be used to classify data into two or more different groups. Outlined below is an example of how an SVM approach can be applied to a relatively simple dataset. For this example, we shall be attempting to build a SVM which is capable of accurately classifying two species based upon their length (in millimetres) and their weight (in kilograms). Here, for simplicity, our species are simply 'A' or 'B'. Here, each data point corresponds to an individual of either species 'A' or 'B' and the corresponding weight and length of that individual.
 
 Throughout this tutorial, code chunks will have a blue background and output will have a green background. This tutorial is meant to be a relatively simple example of SVMs. For an example of SVMs with more complex data, see the [Advanced Tutorial on SVMs](https://benjburgess.github.io/i/SVM_radial).
 
@@ -113,7 +113,7 @@ As we can see, the dataset has now been rescaled and centred around 0 for both t
 
 ## Training the SVM
 
-At this point we are now ready to start training our SVM. However, we have to make several decisions about our model. Firstly, we have to decide which kernel to use. There are many resources which discuss kernel choice, see links provided on the [initial page for support vector machines (SVMs)](https://benjburgess.github.io/svm). 
+At this point we are now ready to start training our SVM. However, we have to make several decisions about our model. Firstly, we have to decide which kernel to use. There are many resources which discuss kernel choice, see links provided on the [initial page for support vector machines (SVMs)](https://benjburgess.github.io/data/index/svm). 
 
 For this introductory tutorial and we will be using a linear kernel.
 
