@@ -224,7 +224,7 @@ As such, we can run our new meta-analytical model using the following code.
 ```{r class.source="bg-info", class.output="bg-success"}
 rr.ma2 <- rma.mv(yi = RR, 
                  V = cov_var, 
-                 random = ~ 1 | Region/Lake, 
+                 random = ~ 1 | Region/Lake,
                  data = df2)
 
 rr.ma2
@@ -232,7 +232,22 @@ rr.ma2
 
 So, lets interpret our results. Our new meta-analytical model finds that for our dataset, the summary effect size (i.e., combined $RR$ values from all experiments) is `r as.numeric(rr.ma2$b)`. Futhermore, the lower (`r as.numeric(rr.ma2$ci.lb)`) and upper (`r as.numeric(rr.ma2$ci.ub)`) confidence intervals for our summary effect size *do*  overlap zero. As such, once we have taken into account the random effects of Lake and Region, our model suggests that the pesticide does not result in a statistically significant reduction in zooplankton survival. This illustrates the importance of accounting for potential sources of variation within our meta-analytical models, as it appears as though the random effects due to region and lake may have dictating previous results.
 
-If we wanted to, we could stop our analysis at this point. The model we have build is appropriate for our dataset. However, we also have the option of considering various different fixed effects. In other words, determining whether the effect of pesticide on zooplankton survival varies across another variable. We further analysis we could conduct is considering whether the effect of pesticide varies with its intensity. Let's have a look again at the Intensity column of our dataset.
+However, we also have another potential source of variation to consider is that the data comes from numerous different papers (shown by the *Author* variable). As such, we can add an extra random effect to our meta-analytical model for Author (i.e., paper which provided the data). As for Region and Lake, the assumption here is that data from the same paper is likely to be more similar than data from different papers.
+
+As such, we can run our new meta-analytical model using the following code.
+
+```{r class.source="bg-info", class.output="bg-success"}
+rr.ma2i <- rma.mv(yi = RR, 
+                 V = cov_var, 
+                 random = list(~ 1 | Region/Lake, ~1|Author),
+                 data = df2)
+
+rr.ma2i
+```
+
+So, lets interpret our results. Our new meta-analytical model finds that for our dataset, the summary effect size (i.e., combined $RR$ values from all experiments) is `r as.numeric(rr.ma2i$b)`. Futhermore, the lower (`r as.numeric(rr.ma2i$ci.lb)`) and upper (`r as.numeric(rr.ma2i$ci.ub)`) confidence intervals for our summary effect size *do*  overlap zero. As such, once we have taken into account the random effect Author (i.e., paper) alongside Lake and Region, our model suggests that the pesticide does not result in a statistically significant reduction in zooplankton survival. This illustrates the importance of accounting for *all* the potential sources of variation within our meta-analytical models, as it appears as though the random effect due to Author may account for even more variation than region and lake.
+
+In theory, we could stop our analysis at this point. The model we have build is in theory appropriate for our dataset. However, we also have the option of considering various different fixed effects. In other words, determining whether the effect of pesticide on zooplankton survival varies across fixed groups for variable. One further analysis we could conduct is considering whether the effect of pesticide varies with its intensity. Let's have a look again at the Intensity column of our dataset.
 
 
 ```{r class.source="bg-info", class.output="bg-success"}
@@ -249,7 +264,7 @@ As such, we can run the model using the following code.
 rr.ma3 <- rma.mv(yi = RR, 
                  V = cov_var,
                  mods = ~ Intensity -1,
-                 random = ~ 1 | Region/Lake, 
+                 random = list(~ 1 | Region/Lake, ~1|Author),
                  data = df2)
 
 rr.ma3
@@ -263,7 +278,7 @@ If we focus on the high intensity of pesticide, the summary effect size of `r as
 
 Overall, this tutorial comprises an introduction to how meta-analyses can be conducted for relatively complex datasets. Here, we address concepts such as effect size calculation, covariance, hierarchical random effects, and fixed effects. This tutorial shows an effective meta-analysis and the considerations that need to be made, alongside tips for ensuring a rigourous analysis. 
 
-The tutorial here only covers the basics, and it is always prudent to consider additional measures such as heterogeneity (e.g., $I^2$), and various model diagonistics (e.g., DFBETAs, Cooks' D, and $\hat{R}$). Furthermore, this tutorial hasn't covered one of the hardest and most time-consuming aspects of a meta-analysis.... the collation of the dataset! If that is what you are currently looking for advice on, I'd point you towards some great R packages such as `juicr` [(Lajeunesse, 2021)](https://cran.r-project.org/web/packages/juicr/vignettes/juicr_basic_vignette_v0.1.pdf).
+The tutorial here only covers the basics, and it is always prudent to consider additional measures such as heterogeneity (e.g., $I^2$), variance components (see above model results), and various model diagonistics (e.g., DFBETAs, Cooks' D, and $\hat{R}$). Furthermore, this tutorial hasn't covered one of the hardest and most time-consuming aspects of a meta-analysis.... the collation of the dataset! If that is what you are currently looking for advice on, I'd point you towards some great R packages such as `juicr` [(Lajeunesse, 2021)](https://cran.r-project.org/web/packages/juicr/vignettes/juicr_basic_vignette_v0.1.pdf).
 
 Overall, this is hopefully a useful introductory guide to performing a meta-analysis and helps you to avoid some of the many traps that many people fall into when doing a meta-analysis!
 

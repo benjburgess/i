@@ -269,43 +269,43 @@ library(ggplot2)</code></pre>
 <pre class="r bg-info"><code>df2 &lt;- read.csv(&quot;~/R_sandbox/Meta_Analysis_Lake.csv&quot;)</code></pre>
 <p>Let’s have a look at the data we have here.</p>
 <pre class="r bg-info"><code>head(df2, n= 36)</code></pre>
-<pre class="bg-success"><code>##    Index   Author Region Lake Intensity Treatment_N Control_N Control_Mean
-## 1      1    Ahmed  North    A       Low           8         8         0.93
-## 2      2    Ahmed  North    A       Low          13        13         0.95
-## 3      3    Ahmed  North    A       Low          13        13         0.94
-## 4      4    Burns  North    B       Low           8         8         0.89
-## 5      5    Burns  North    B       Low          11        11         0.88
-## 6      6    Burns  North    B    Medium          10        10         0.94
-## 7      7    Chang  North    C       Low           7         7         0.88
-## 8      8    Chang  North    C       Low           6         6         0.97
-## 9      9    Chang  North    C    Medium          16        16         0.88
-## 10    10     Diaz   East    D    Medium          15        15         0.99
-## 11    11     Diaz   East    D    Medium          16        16         0.96
-## 12    12     Diaz   East    D    Medium          11        11         0.90
-## 13    13     Diaz   East    D    Medium           7         7         0.93
-## 14    14 Ericsson   East    E       Low           7         7         0.98
-## 15    15 Ericsson   East    E       Low           7         7         0.87
-## 16    16 Ericsson   East    E    Medium           6         6         0.96
-## 17    17 Ericsson   East    E    Medium          14        14         0.87
-## 18    18   Flores   East    F      High          13        13         0.88
-## 19    19   Flores   East    F      High          12        12         0.89
-## 20    20   Flores   East    F    Medium           8         8         0.97
-## 21    21   Flores   East    F    Medium           9         9         0.99
-## 22    22   Garcia   East    G    Medium           9         9         0.90
-## 23    23   Garcia   East    G    Medium          16        16         0.92
-## 24    24   Garcia   East    G      High          10        10         0.93
-## 25    25   Garcia   East    G      High          15        15         0.87
-## 26    26     Hyde   East    H       Low          12        12         0.92
-## 27    27     Hyde   East    H       Low          11        11         0.90
-## 28    28     Hyde   East    H      High          14        14         0.96
-## 29    29     Hyde   East    H      High           8         8         0.92
-## 30    30   Irving   East    I       Low          14        14         0.91
-## 31    31   Irving   East    I       Low          14        14         0.87
-## 32    32   Irving   East    I       Low          14        14         0.90
-## 33    33    Jones  South    J    Medium          10        10         0.95
-## 34    34    Jones  South    J    Medium           8         8         0.96
-## 35    35     Khan  South    K    Medium           7         7         0.94
-## 36    36     Khan  South    K       Low           7         7         0.94
+<pre class="bg-success"><code>##    Index    Author Region Lake Intensity Treatment_N Control_N Control_Mean
+## 1      1     Ahmed  North    A       Low           8         8         0.93
+## 2      2    Arnold  North    A       Low          13        13         0.95
+## 3      3    Arnold  North    A       Low          13        13         0.94
+## 4      4     Burns  North    B       Low           8         8         0.89
+## 5      5  Bertrand  North    B       Low          11        11         0.88
+## 6      6 Zimmerman  North    B    Medium          10        10         0.94
+## 7      7     Chang  North    C       Low           7         7         0.88
+## 8      8     Chang  North    C       Low           6         6         0.97
+## 9      9       Zhu  North    C    Medium          16        16         0.88
+## 10    10      Diaz   East    D    Medium          15        15         0.99
+## 11    11      Diaz   East    D    Medium          16        16         0.96
+## 12    12      Diaz   East    D    Medium          11        11         0.90
+## 13    13   Douglas   East    D    Medium           7         7         0.93
+## 14    14  Ericsson   East    E       Low           7         7         0.98
+## 15    15  Ericsson   East    E       Low           7         7         0.87
+## 16    16  Ericsson   East    E    Medium           6         6         0.96
+## 17    17  Ericsson   East    E    Medium          14        14         0.87
+## 18    18    Flores   East    F      High          13        13         0.88
+## 19    19    Flores   East    F      High          12        12         0.89
+## 20    20  Ferguson   East    F    Medium           8         8         0.97
+## 21    21  Ferguson   East    F    Medium           9         9         0.99
+## 22    22    Garcia   East    G    Medium           9         9         0.90
+## 23    23     Gomez   East    G    Medium          16        16         0.92
+## 24    24       Zhu   East    G      High          10        10         0.93
+## 25    25     Gibbs   East    G      High          15        15         0.87
+## 26    26      Hyde   East    H       Low          12        12         0.92
+## 27    27      Hyde   East    H       Low          11        11         0.90
+## 28    28      Hyde   East    H      High          14        14         0.96
+## 29    29  Hamilton   East    H      High           8         8         0.92
+## 30    30    Irving   East    I       Low          14        14         0.91
+## 31    31    Irving   East    I       Low          14        14         0.87
+## 32    32    Irving   East    I       Low          14        14         0.90
+## 33    33     Jones  South    J    Medium          10        10         0.95
+## 34    34 Zimmerman  South    J    Medium           8         8         0.96
+## 35    35      Khan  South    K    Medium           7         7         0.94
+## 36    36      Khan  South    K       Low           7         7         0.94
 ##    Control_SD Treatment_Mean Treatment_SD                  Notes
 ## 1       0.169           0.90        0.126                   &lt;NA&gt;
 ## 2       0.203           0.87        0.199                   &lt;NA&gt;
@@ -503,7 +503,7 @@ rr.ma1</code></pre>
 <p>As such, we can run our new meta-analytical model using the following code.</p>
 <pre class="r bg-info"><code>rr.ma2 &lt;- rma.mv(yi = RR, 
                  V = cov_var, 
-                 random = ~ 1 | Region/Lake, 
+                 random = ~ 1 | Region/Lake,
                  data = df2)
 
 rr.ma2</code></pre>
@@ -527,7 +527,36 @@ rr.ma2</code></pre>
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>So, lets interpret our results. Our new meta-analytical model finds that for our dataset, the summary effect size (i.e., combined <span class="math inline">\(RR\)</span> values from all experiments) is -0.0645677. Futhermore, the lower (-0.131555) and upper (0.0024197) confidence intervals for our summary effect size <em>do</em> overlap zero. As such, once we have taken into account the random effects of Lake and Region, our model suggests that the pesticide does not result in a statistically significant reduction in zooplankton survival. This illustrates the importance of accounting for potential sources of variation within our meta-analytical models, as it appears as though the random effects due to region and lake may have dictating previous results.</p>
-<p>If we wanted to, we could stop our analysis at this point. The model we have build is appropriate for our dataset. However, we also have the option of considering various different fixed effects. In other words, determining whether the effect of pesticide on zooplankton survival varies across another variable. We further analysis we could conduct is considering whether the effect of pesticide varies with its intensity. Let’s have a look again at the Intensity column of our dataset.</p>
+<p>However, we also have another potential source of variation to consider is that the data comes from numerous different papers (shown by the <em>Author</em> variable). As such, we can add an extra random effect to our meta-analytical model for Author (i.e., paper which provided the data). As for Region and Lake, the assumption here is that data from the same paper is likely to be more similar than data from different papers.</p>
+<p>As such, we can run our new meta-analytical model using the following code.</p>
+<pre class="r bg-info"><code>rr.ma2i &lt;- rma.mv(yi = RR, 
+                 V = cov_var, 
+                 random = list(~ 1 | Region/Lake, ~1|Author),
+                 data = df2)
+
+rr.ma2i</code></pre>
+<pre class="bg-success"><code>## 
+## Multivariate Meta-Analysis Model (k = 36; method: REML)
+## 
+## Variance Components:
+## 
+##             estim    sqrt  nlvls  fixed       factor 
+## sigma^2.1  0.0076  0.0871      3     no       Region 
+## sigma^2.2  0.0027  0.0524     11     no  Region/Lake 
+## sigma^2.3  0.0173  0.1315     20     no       Author 
+## 
+## Test for Heterogeneity:
+## Q(df = 35) = 133.5151, p-val &lt; .0001
+## 
+## Model Results:
+## 
+## estimate      se     zval    pval    ci.lb   ci.ub 
+##  -0.0605  0.0645  -0.9366  0.3489  -0.1870  0.0661    
+## 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>So, lets interpret our results. Our new meta-analytical model finds that for our dataset, the summary effect size (i.e., combined <span class="math inline">\(RR\)</span> values from all experiments) is -0.0604562. Futhermore, the lower (-0.186963) and upper (0.0660506) confidence intervals for our summary effect size <em>do</em> overlap zero. As such, once we have taken into account the random effect Author (i.e., paper) alongside Lake and Region, our model suggests that the pesticide does not result in a statistically significant reduction in zooplankton survival. This illustrates the importance of accounting for <em>all</em> the potential sources of variation within our meta-analytical models, as it appears as though the random effect due to Author may account for even more variation than region and lake.</p>
+<p>In theory, we could stop our analysis at this point. The model we have build is in theory appropriate for our dataset. However, we also have the option of considering various different fixed effects. In other words, determining whether the effect of pesticide on zooplankton survival varies across fixed groups for variable. One further analysis we could conduct is considering whether the effect of pesticide varies with its intensity. Let’s have a look again at the Intensity column of our dataset.</p>
 <pre class="r bg-info"><code>print(df2$Intensity)</code></pre>
 <pre class="bg-success"><code>##  [1] Low    Low    Low    Low    Low    Medium Low    Low    Medium Medium
 ## [11] Medium Medium Medium Low    Low    Medium Medium High   High   Medium
@@ -539,7 +568,7 @@ rr.ma2</code></pre>
 <pre class="r bg-info"><code>rr.ma3 &lt;- rma.mv(yi = RR, 
                  V = cov_var,
                  mods = ~ Intensity -1,
-                 random = ~ 1 | Region/Lake, 
+                 random = list(~ 1 | Region/Lake, ~1|Author),
                  data = df2)
 
 rr.ma3</code></pre>
@@ -551,6 +580,7 @@ rr.ma3</code></pre>
 ##             estim    sqrt  nlvls  fixed       factor 
 ## sigma^2.1  0.0000  0.0000      3     no       Region 
 ## sigma^2.2  0.0000  0.0000     11     no  Region/Lake 
+## sigma^2.3  0.0000  0.0000     20     no       Author 
 ## 
 ## Test for Residual Heterogeneity:
 ## QE(df = 33) = 16.0441, p-val = 0.9943
@@ -573,7 +603,7 @@ rr.ma3</code></pre>
 <div id="concluding-remarks" class="section level2">
 <h2>Concluding remarks</h2>
 <p>Overall, this tutorial comprises an introduction to how meta-analyses can be conducted for relatively complex datasets. Here, we address concepts such as effect size calculation, covariance, hierarchical random effects, and fixed effects. This tutorial shows an effective meta-analysis and the considerations that need to be made, alongside tips for ensuring a rigourous analysis.</p>
-<p>The tutorial here only covers the basics, and it is always prudent to consider additional measures such as heterogeneity (e.g., <span class="math inline">\(I^2\)</span>), and various model diagonistics (e.g., DFBETAs, Cooks’ D, and <span class="math inline">\(\hat{R}\)</span>). Furthermore, this tutorial hasn’t covered one of the hardest and most time-consuming aspects of a meta-analysis…. the collation of the dataset! If that is what you are currently looking for advice on, I’d point you towards some great R packages such as <code>juicr</code> <a href="https://cran.r-project.org/web/packages/juicr/vignettes/juicr_basic_vignette_v0.1.pdf">(Lajeunesse, 2021)</a>.</p>
+<p>The tutorial here only covers the basics, and it is always prudent to consider additional measures such as heterogeneity (e.g., <span class="math inline">\(I^2\)</span>), variance components (see above model results), and various model diagonistics (e.g., DFBETAs, Cooks’ D, and <span class="math inline">\(\hat{R}\)</span>). Furthermore, this tutorial hasn’t covered one of the hardest and most time-consuming aspects of a meta-analysis…. the collation of the dataset! If that is what you are currently looking for advice on, I’d point you towards some great R packages such as <code>juicr</code> <a href="https://cran.r-project.org/web/packages/juicr/vignettes/juicr_basic_vignette_v0.1.pdf">(Lajeunesse, 2021)</a>.</p>
 <p>Overall, this is hopefully a useful introductory guide to performing a meta-analysis and helps you to avoid some of the many traps that many people fall into when doing a meta-analysis!</p>
 </div>
 <div id="references" class="section level2">
