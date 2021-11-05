@@ -15,11 +15,17 @@ Outlined below are all the tutorials currently written on various different topi
 
 Note that these will continue to be added over the coming weeks.
 
-## Machine Learning
+## Statistics, Data Modelling, and Machine Learning
+
+### Meta-analyses
+An [introductory tutorial for meta-analyses](https://benjburgess.github.io/i/metaanalysis_introductory) where `R` code is provided. The tutorial provides a step-by-step workflow for how to conduct a meta-analysis including addressing issues with covariance, hierarchical random effects, and fixed effects.
+
 
 ### Support Vector Machines (SVMs)
 
-A [tutorial for SVMs](https://benjburgess.github.io/i/svm) where `R` code is provided. The tutorial utilises on an openly available dataset on wine. This example generates a SVM which is capable of accurately determining the quality of wine based on its chemical properties. 
+An [introductory tutorial for SVMs](https://benjburgess.github.io/i/SVM_linear) where `R` code is provided. The tutorial builds a simple SVM which accurately which can accurately classify two species based on physical measurements.
+
+An [advanced tutorial for SVMs](https://benjburgess.github.io/i/SVM_radial) where `R` code is provided. The tutorial utilises on an openly available dataset on wine. This example generates a SVM which attempts to classifies wines into different qualities, based on the chemical properties of the wine. 
 
 
 ## multiplestressR - R package
