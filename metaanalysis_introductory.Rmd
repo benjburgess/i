@@ -37,7 +37,9 @@ library(ggplot2)
 
 ## Data
 
-The next thing we need to do is load in the data we are going to be analysing. I will make this available via [github](github.com/benjburgess) for anyone wanting to replicate this analysis.
+The next thing we need to do is load in the data we are going to be analysing. 
+This data is available via [github](https://github.com/benjburgess/i/blob/master/Data/MetaAnalysis_Pesticide_Data.RData) for anyone wanting to replicate this analysis.
+Just to reiterate, I have generated this data for this example analysis, it is not *real world* data.
 
 ```{r class.source="bg-info", class.output="bg-success"}
 df2 <- read.csv("~/R_sandbox/Meta_Analysis_Lake.csv")
