@@ -17,7 +17,7 @@ output:
 
 ## Introduction
 
-As I've detailed in the [introduction to meta-analyses](https://benjburgess.github.io/svm),
+As I've detailed in the [introduction to meta-analyses](https://benjburgess.github.io/metaanalyses), meta-analyses are a powerful statistical technique which collate data from multiple independent studies which address a particular research question. In doing so meta-analyses have a higher statistical power than any of the individual studies and are likely to be better able to determine the underlying trends (assuming that steps have been taken to deal with issues such as publication bias and the weighting of effect sizes). Below, I provide R code for an introductory tutorial to demonstrate how to conduct a meta-analysis on a dataset with a relatively complex structure. In doing so I outline how to account for issues such as a hierarchical random effects, covariance between studies, and fixed effects. Here, we use an ecological example outlined in more detail below.
 
 
 ## Question
