@@ -17,16 +17,24 @@ output:
 
 ## Introduction
 
-As I've detailed in the [introduction to support vector machines (SVMs)](https://benjburgess.github.io/data/index/svm), SVMs are a machine learning tool which can be used to classify data into two or more different groups. Outlined below is an example of how an SVM approach can be applied to a relatively complex dataset, in this case considering the properties of over 6000 different wines. Here, we will build a SVM capable of accurately classifying the quality of wine based on its chemical properties. Here, quality is a category between 1 and 10, with one reflecting the lowest quality wine and 10 the highest quality wine. For this example, we will be using `R`.
+As I've detailed in the [introduction to support vector machines (SVMs)](https://benjburgess.github.io/data/index/svm), SVMs are a machine learning tool which can be used to classify data into two or more different groups. Outlined below is an example of how an SVM approach can be applied to a relatively complex dataset, in this case considering the properties of a large number of different wines. Here, we will build a SVM capable of accurately classifying the quality of wine based on its chemical properties. Here, quality is a category between 1 and 10, with one reflecting the lowest quality wine and 10 the highest quality wine. For this example, we will be using `R`.
 
 The first thing to do is download the data and save it to your local machine. The data is available from [Kaggle](https://www.kaggle.com/shelvigarg/wine-quality-dataset) and is from an academic paper by [Cortez et al. (2009)](https://www.sciencedirect.com/science/article/abs/pii/S0167923609001377).
 
 Throughout this tutorial, code chunks will have a blue background and output will have a green background. This tutorial is meant to be a relatively advanced example of SVMs, particularly with regards to the number of different classes (i.e., wine qualities) and data cleaning. For a simpler workflow of SVMs in R, see the [Introductory Tutorial on SVMs](https://benjburgess.github.io/i/SVM_linear). Importantly, these tutorial also addresses some of the issues of analyses using SVMs.
 
+## Scenario
+
+For this tutorial we will attempt to find a solution to the following scenario.
+
+Let's imagine we work at a wine merchants, which specialises in mid-range wines. Our company is about to have a new shipment of white wines come in, and wants to know how to price these new wines. In order to do this, the company needs to work out their quality, with higher quality wines likely to command a higher price than those of a lower quality. The company knows that these wines will all be mid-range wines, but does not known whether each wine will be of i) a lower-medium quality (quality class of 5); ii) a medium quality (quality class of 6); or iii) a higher-medium quality (quality class of 7). The company has large-scale dataset on previous wines detailing their quality and a number of chemical properties. As such, the company wants us to generate a model which is capable of determining each wines' quality from the its chemical properties. In particular, the company is keen for the model not to misclassify wines of lower-medium (5) quality  as higher-medium (7) quality (and vice versa) as this may result in customers being particularly overcharged for wines (and potentially dissatisfied customers) or particularly undercharged for wines (lower profits for the company). The company also wants to avoid wines of medium (6) and higher-medium (7) being assigned a lower quality as much as possible given this may harm profits (but is unlikely to unduly harm customer satisfaction).
+
+As detailed above, we are going to attempt to meet the companies aims using a support vector machine. 
+
 
 ## Packages and set.seed()
 
-Firstly, we need to install the various packages we need for this tutorial. If any of these packages are not installed in your local machine, they can be installed via the `install.packages()` function. We will also set the seed for this code, this is simply to allow reproducibility of the results.
+Firstly, we need to load the various packages we need for this tutorial. If any of these packages are not installed in your local machine, they can be installed via the `install.packages()` function. We will also set the seed for this code, this is simply to allow reproducibility of the results.
 
 ```{r class.source = "bg-info", message=FALSE, warning=FALSE}
 library(ggplot2)
@@ -35,13 +43,14 @@ library(scales)
 library(scutr)
 library(caret)
 library(caTools)
+library(dplyr)
 
 set.seed(7654)
 ```
 
 ## Data loading
 
-The next thing we need to do is load in the data. This will be from wherever you saved the data on your local machine and whatever you titled the file. 
+The next thing we need to do is load in the data. This will be from wherever you saved the data on your local machine and whatever you titled the file (see the above link). This data represents the dataset referred to in the scenario.
 
 At this point we will also change some of the column names. In the original file there were blank spaces which `R` isn't a fan of. The following code will also convert any of these blank spaces to underscores.
 
@@ -71,48 +80,28 @@ original.dim - new.dim
 
 As you can see there are `r original.dim - new.dim` rows which have been removed from our dataframe.
 
+At this stage we can remove the redundant data from our dataset. Our project brief is to develop a model which is capable of predicting the quality of *mid-range* *white* wines. As such, we can remove all data from our dataset on red wines. We can also remove all the data on higher and lower quality wines as these are not part of the brief and may only convolute our analyses.
+
+This subsetting can be done with the following code.
+
+
 The next step is to convert the categorical variable of `type` into a binary variable. At present the column of `type` is either 'white' or 'red' however the SVM doesn't really respond to data in this form. We are much better off encoding this information as two dummy variables, namely `white` and `red`. Wherever `type` is 'white', `white` will have a value of 1 and `red` a value of 0. Wherever `type` is 'red', `white` will have a value of 0 and `red` a value of 1. In effect we have encoded the information in the `type` column in a slightly different manner. See [this link on stackoverflow](https://stats.stackexchange.com/questions/52915/how-to-deal-with-an-svm-with-categorical-attributes) for a more thorough explanation of why this is necessary. However, once this is done we can then remove the original `type` column.
 
 ```{r class.source="bg-info", class.output="bg-success"}
 
-#generate the new columns
-df$white <- NA
-df$red <- NA
+#only select white wines
+df <- subset(df, type == "white")
 
-#a function to populate the values of the dummy variables
-red_white_binary <- function(wine, wine_type){
-  
-  if(wine == wine_type){
-    return(1)
-  }
-  
-  if(wine != wine_type){
-    return(0)
-  }
-  
-}
-
-#generate the values for white and red columns
-df$white <- mapply(red_white_binary, df$type, "white")
-df$red <- mapply(red_white_binary, df$type, "red")
-
-#remove 'type' column as this has been replaced by a binary red (0,1) or white (0,1)
+#remove 'type' column as our dataset is now entirely white wines
 df <- df[,-1]
-```
 
-At this point we need to split our data into two distinct subsets. The first will be used for training the svm (the train dataset) and the second will be used for testing the dataset.
-
-First of all, we're going to remove wines with a quality 9 from our dataset. We've going to do this for two reasons. Firstly, we only have five wines of quality 9 in our dataset, this means it is unlikely that our SVM will be able to classify these wines with any great accuracy given the limited data. Secondly, for the SCUT algorithm to work (see below) we need at least six data points for each wine quality in the train dataset. As we only have five wines overall, the SCUT algorithm won't work. This isn't an ideal situation; however, for our analysis, this is the best solution at this point. 
-
-```{r class.source="bg-info", class.output="bg-success"}
-
-df <- subset(df, quality  != 9)
+#only select mid quality wines and set quality as a factor
+df <- subset(df, quality  %in% c(5, 6, 7))
 
 df$quality <- factor(df$quality)
-
 ```
 
-At this stage we can now split our data. Here, we will be splitting our data preserving the same ratio of wines of quality 3 - 8 in both the test and train datasets. 
+At this point we need to split our data into two distinct subsets. The first will be used for training the svm (the train dataset) and the second will be used for testing the dataset.Here, we will be splitting our data while preserving the same ratio of wines of each quality (5, 6, 7) in both the test and train datasets. 
 
 Our analysis is going to be run on the training dataset before being tested on the test dataset right at the very end of the analysis.
 
@@ -128,7 +117,6 @@ df.test  <- df[!split_determined,]
 
 ```
 
-
 Now if we look at our train and test dataset one thing we can easily notice is that the different variables are all on different scales.
 
 ```{r class.source="bg-info", class.output="bg-success"}
@@ -137,18 +125,14 @@ head(df.train)
 
 [This is an issue for SVMs](https://stats.stackexchange.com/questions/65094/why-scaling-is-important-for-the-linear-svm-classification/224201), as if data is on different scales there is the potential for the numerically larger variables to be given a greater importance than the numerically smaller variables. This then has the potential to bias our model. As such, we need to rescale each variable to be on the same scale. This can be done with the following code, [see this stackoverflow link for more details](https://datascience.stackexchange.com/questions/13971/standardization-normalization-test-data-in-r).
 
-
 ```{r class.source="bg-info", class.output="bg-success"}
 
 train_scaling <- preProcess(df.train, method=c("scale", "center"))
 df.train <- predict(train_scaling, df.train)
 df.test  <- predict(train_scaling, df.test)
-
 ```
 
 This code ensures that the test and train datasets are both scaled in the same way. If they weren't when we come to test the SVM, all our model predictions would be wrong as the test and train datasets would be subtely different. As such, our test dataset is rescaled using the rescaling factors from our train dataset. 
-
-
 
 If we have a look at our train dataset, we can plot a histogram of the different count of wines in each of the different categories. 
 
@@ -158,13 +142,12 @@ ggplot(df.train, aes(x=as.numeric(as.character(quality)))) +
   xlab("quality")
 ```
 
-As we can, see there are many more wines of quality 6, then there are of quality 3 or 8. This may be an issue with our SVM, as it may therefore be inherently biased towards predicting wines of quality 6. As such, we could in theory get a reasonable accuracy for our SVM if it predicted group 6 accurately but all other groups poorly. This would represent a biased model. As such one way we can go about this is using a technique called SMOTE or SCUT to rebalance our dataset to have equal proportions of each of the different wine qualities. SMOTE [(explained more here)](https://towardsdatascience.com/a-practical-guide-to-interpreting-and-visualising-support-vector-machines-97d2a5b0564e) is method for generating new data based on existing data in the same group. I'm not going to go into it too much here, but this technique uses the nearest neighbour algorithm to generate new data. SMOTE is the method to use if your data only contains two groups, while SCUT is the method to use if your data comprises three or more groups. Here, we have three different groups so we will be using SCUT. Note that SCUT only needs to be conducted on the train dataset, not the test dataset.
+As we can, see there are more wines of quality 6, then there are of quality 5 or 7. This may be an issue with our SVM, as it may therefore be inherently biased towards predicting wines of quality 6. As such, we could in theory get a reasonable accuracy for our SVM if it predicted group 6 accurately but the other groups poorly. This would represent a biased model. As such one way we can go about this is using a technique called SMOTE or SCUT to rebalance our dataset to have equal proportions of each of the different wine qualities. SMOTE [(explained more here)](https://towardsdatascience.com/a-practical-guide-to-interpreting-and-visualising-support-vector-machines-97d2a5b0564e) is method for generating new data based on existing data in the same group. I'm not going to go into it too much here, but this technique uses the nearest neighbour algorithm to generate new data. SMOTE is the method to use if your data only contains two groups, while SCUT is the method to use if your data comprises three or more groups. Here, we have three different groups so we will be using SCUT. Note that SCUT only needs to be conducted on the train dataset, not the test dataset.
 
 SCUT can be used from the `scutr` package, and run using the following code.
 
 
 ```{r class.source="bg-info", class.output="bg-success"}
-
 
 df.train <- SCUT(df.train, "quality", oversample="oversample_smote")
 
@@ -177,6 +160,41 @@ ggplot(df.train, aes(x=as.numeric(as.character(quality)))) +
   geom_histogram(color="black", fill="white") + 
   xlab("quality")
 ```
+
+Our dataset is relatively complex, containing data on a dozen or so chemical properties of each wine. At this stage, we are going try and reduce some of this complexity by implementing a dimensionality reduction procedure to the dataset. In essence, this reformats our dataset into a number of components which account for varying amounts of variance within our dataset. These components no longer account for different variables, but instead different variables are grouped together. Here, we will using principal component analysis (i.e., PCA) to reduce the dimensionality of our dataset. This can be done with the following code:
+
+
+```{r class.source="bg-info", class.output="bg-success"}
+#conduct a principal component analysis using the train dataset
+
+
+#remove the qualities from the train dataset
+pca_train <- prcomp(df.train[-c(12)])
+
+summary(pca_train)
+```
+
+Now, we need to make a decision about the number of principal components to select for our analyses. There are various different ways of selecting which principal components to use. Two of the most common methods are the variance explained criteria or the Kaiser-Guttman criterion [(see this link for a thorough explanation of selecting principal components)](https://www.geo.fu-berlin.de/en/v/soga/Geodata-analysis/Principal-Component-Analysis/principal-components-basics/Choose-principal-components/index.html). In short, the variance explained criteria suggests that the user should select principal components which explain the variance up to a certain cut-off point. So, by starting with PC1 we would continue to select PCs (in descending order of variance explained) up until our threshold is met (with 70-90% of variance being common thresholds). In contrast, the Kaiser-Guttman criterion says that only those PCs which have a variance (squared SD) of over 1 should be selected. Here, following the different methods may result in a different number of PCs being selected. If we use a threshold of 80% variance explained, we would select PCs 1-6. However, if use the Kaiser-Guttman criterion, then only PCs 1-5 would be selected. Here, for the purposes of this tutorial, we are going to use the variance explained criteria (with a threshold of 90%) and only select the first eight PCs. Selecting PCs 1-8 can be done using the following code (which also applies the identical PCA transformation to the test dataset).
+
+
+
+```{r class.source="bg-info", class.output="bg-success"}
+#For the train dataset, select the first 5 PCs
+trainp <- tbl_df(pca_train$x) %>% select(PC1:PC8)
+
+#Apply the same transformation to the test dataset and select the first 5 Pcs
+testp <- tbl_df(predict(pca_train, newdata = df.test[-c(12)])) %>% select(PC1:PC8)
+
+#add the qualities to each dataset again
+df.train <- cbind(trainp, df.train[c(12)])
+df.test <- cbind(testp, df.test[c(12)])
+```
+
+At this point, we are now able to move on the training of the SVM.
+
+
+
+
 
 
 ## Training the SVM
@@ -195,13 +213,12 @@ When training the SVM, the best model parameters are chosen by those which gener
 
 Following this, our SVM can be trained using the following code.
 
-Note that `e1071` package conducts its analysis consecutively, as opposed to parallelly, and can take a while to run (potentially over an hour).
-
 ```{r class.source="bg-info", class.output="bg-success"}
 
 
 radial_grid <- expand.grid(C = 2^c(-2:5),
                            sigma = 2^c(-2:5))
+
 
 svm_trained <- train(quality ~., 
                      data = df.train, 
@@ -216,26 +233,22 @@ svm_trained
 #show the summary of our svm training
 ```
 
-So, as we can see from the model training, the best performing model was when sigma equals `r as.numeric(svm_trained$best.parameters[1])` and cost equals `r as.numeric(svm_trained$best.parameters[2])`. Here the best performance of the model was `r as.numeric(svm_trained$best.performance)` which means that across all 10 folds of the cross validation for these parameter values, ~`r 100*(1-as.numeric(svm_trained$best.performance))`% of all wines were assigned the correct category. 
+So, as we can see from the model training, the best performing model was when sigma equals `r as.numeric(svm_trained$best.parameters[1])` and cost equals `r as.numeric(svm_trained$best.parameters[2])`. Here the best performance of the model was `r as.numeric(svm_trained$best.performance)` which means that across all 10 folds of the cross validation for these parameter values, ~`r 100*(as.numeric(max(svm_trained$results$Accuracy)))`% of all wines were assigned the correct category. 
 
 
 ## Testing the SVM
-
-So as we discussed above, the best forming model is where sigma equals `r as.numeric(svm_trained$bestTune[1])` and cost equals `r as.numeric(svm_trained$bestTune[2])`. Here across all 10 folds of the cross validation ~`r 100*(as.numeric(max(svm_trained$results$Accuracy)))`% of all wines were assigned to the correct category. This can be seen using the following code.
-
-```{r class.source="bg-info", class.output="bg-success"}
-svm_trained
-```
 
 This analysis has so far been based on the training dataset, but at this stage we can now shift our attention to the test dataset we subset from the original data. Using our SVM we can now predict the quality of every wine in the test dataset and compare our predictions to the actual class of the wine. From this we can calculate various different metrics which we can use to assess the performance of our SVM. This can be done using the following code.
 
 
 ```{r class.source="bg-info", class.output="bg-success"}
 pred=predict(svm_trained, df.test)
+#predict the qualities of wines from the test dataset
+
 
 cm <- caret::confusionMatrix(pred, df.test$quality) 
-#this uses the confusionMatrix function from the caret package
 cm
+
 
 ```
 
@@ -249,7 +262,7 @@ cm$table
 
 ```
 
-The confusion matrix is basically a way of allowing us to visually assess whether our SVM assigns our wines (from the test dataset) the correct qualities or, if not, which qualities they are assigned. From our dataset we can see that the SVM broadly classifies wine of qualities 5 or 7 correctly. However, the SVM appears to be less good at classifying wines of qualities 3, 4, and 6. This is just a visual inspection and our initial thoughts can be confirmed (or contrasted) using some statistics.
+The confusion matrix is basically a way of allowing us to visually assess whether our SVM assigns our wines (from the test dataset) the correct qualities or, if not, which qualities they are assigned. From our dataset we can see that the SVM broadly classifies wines into the different qualities correctly (as shown by the large numbers across the major diagonal). However, there are relatively large numbers of wines that have not been classified correctly (as shown by the numbers off the major diagonal). This indicates that our SVM may not be as accurate as we would of perhaps hoped. However, this is just a visual inspection and our initial thoughts can be confirmed (or contrasted) using some statistics.
 
 Let's start by considering the overall statistics for our model, which can be called using the following code.
 
@@ -261,9 +274,9 @@ cm$overall
 
 So, of the metrics here, the main ones we are going to consider are accuracy and kappa.
 
-If we start with accuracy, the accuracy of our SVM for the test dataset is `r as.numeric(cm$overall[1])*100`% which is lower than the accuracy we obtained from the k-fold cross validation of the SVM at the training stage (~`r 100*(as.numeric(max(svm_trained$results$Accuracy)))`%). Overall, this suggests that our SVM may be overfitting our training data.
+If we start with accuracy, the accuracy of our SVM for the test dataset is `r as.numeric(cm$overall[1])*100`% which is lower than the accuracy we obtained from the k-fold cross validation of the SVM at the training stage (~`r 100*(as.numeric(max(svm_trained$results$Accuracy)))`%). Overall, this suggests that our SVM may be slightly overfitting our training data.
 
-The next metric to consider is the kappa value. The kappa value is an alternative measure of accuracy which considers the expected and observed accuracy of our SVM. I'm not going to explain kappa in any great detail (but see [this comprehensive explanation on stackoverflow](https://stats.stackexchange.com/questions/82162/cohens-kappa-in-plain-english)), but as with the accuracy metric the higher the value of kappa the better. Kappa generally reflects a less biased measure of the accuracy of a model. As such, the value of kappa here indicates that our SVM does not do a great job of classifying wine quality correctly.
+The next metric to consider is the kappa value. The kappa value is an alternative measure of accuracy which considers the expected and observed accuracy of our SVM. I'm not going to explain kappa in any great detail (but see [this comprehensive explanation on stackoverflow](https://stats.stackexchange.com/questions/82162/cohens-kappa-in-plain-english)), but as with the accuracy metric the higher the value of kappa the better. Kappa generally reflects a less biased measure of the accuracy of a model. As such, the value of kappa here indicates that our SVM does a moderate job of classifying wine quality correctly.
 
 Overall, these metrics are two of the most commonly used metrics for assessing the performance of an SVM. 
 
@@ -275,28 +288,55 @@ cm$byClass
 
 ```
 
-As we can see we have a variety of different metrics for each of the different wine qualities. Here, we are only going to focus on the final column of balanced accuracy, but [an explanation of the other metrics can be found here](https://towardsdatascience.com/accuracy-recall-precision-f-score-specificity-which-to-optimize-on-867d3f11124?gi=f0ce52bb598).
+As we can see we have a variety of different metrics for each of the different wine qualities. Here, we are going to predominately focus on the metrics of sensitivity, specificity, and balanced accuracy, but [an explanation of the other metrics can be found here](https://towardsdatascience.com/accuracy-recall-precision-f-score-specificity-which-to-optimize-on-867d3f11124?gi=f0ce52bb598). 
 
-We can cut out the other metrics, and focus on balanced accuracy using the following code.
+We can cut out the other metrics, and focus theses metrics, using the following code. First, let's start with sensitivity. For a given wine quality, sensitivity is calculated as $\frac{TruePositive}{TruePositive  +  FalseNegative}$. In other words, sensitivity is calculated as the number of wines which were correctly assigned a given quality, divided by the total number of wines for that quality. For example, the sensitivity of wines of quality 5 could be calculated as $\frac{335}{335+217+43} = 0.7719$ (using the confusion matrix above). This indicates that all wines which are really of quality 5, 77.2% of them were correctly classified. As we can see below, sensitivity for quality 5 wines is fairly high. However, our SVM appears to be less good at correctly classifying wines of quality 6 or 7. 
 
 ```{r class.source="bg-info", class.output="bg-success"}
+#Sensitivity
+cm$byClass[,4]*100
 
+```
+
+Secondly, we will consider specificity. For a given wine quality, sensitivity is calculated as $\frac{TrueNegative}{TrueNegative  +  FalsePositive}$. In other words, sensitivity is calculated as the number of wines which were correctly assigned a given quality, divided by the total number of wines for that quality. For example, the sensitivity of wines of quality 7 could be calculated as $\frac{335+217+86+368}{335+217+86+368+13+71} = 0.9229$ (using the confusion matrix above). This indicates that all wines which are of quality 5 or 6 quality 7, 92.3% of them were not incorrectly classified as being quality 7. As we can see below, sensitivity for all the wine qualities is fairly high, in particular wines of quality 7.
+
+```{r class.source="bg-info", class.output="bg-success"}
+#Specificity
+cm$byClass[,5]*100
+
+```
+
+Finally, we will consider balanced accuracy. Balanced accuracy is simply the average of the sensitivity and specificity for a given wine quality. As we can see below, overal for wines of quality 5 and 7, the SVM has a relatively high balanced accuracy (although we might like the balanced accuracy for wines of quality 6 to be higher).
+
+
+```{r class.source="bg-info", class.output="bg-success"}
+#Balanced accuracy
 cm$byClass[,11]*100
 
 ```
 
-While the variable name is now missing, by comparing to the above results we can confirm that this is indeed balanced accuracy which has simply been converted to a percentage.
+## Meeting scenario aims
 
-As you can see, for wines of qualities 5, 7, and 8, the balanced accuracy is as high as `r max(as.numeric(cm$byClass[,11]*100))`%. Much as we expected from our expectation of the confusion matrix, our SVM does a reasonable job of classifying wines of quality 5, 7, and 8, but a much poorer job of correctly classifying wines of quality 3, 4, or 6. This is really important to understand as while our overall model accuracy is `r as.numeric(cm$overall[1])*100`% this actually varies quite a lot between the different wine qualities. This might be really important for our analyses, as if our primary aim was to build a machine learning model which is capable of accurately determining when a wine is of a very poor quality (i.e., qualities 3 or 4) then the SVM does a relatively poor job of this, suggesting that we may need to adjust our analysis. However, if our aim was to build a model which is capable of accurately determining wines of a higher quality (i.e., qualities 7 or 8) then our analysis may suffice as it appears to do reasonably well at accurately classifying wines of these qualities.
+Overall, we have put together an svm which appears to do a reasonable job of classifying mid-range white wines into different qualities. While we have assessed a number of different metrics, we need to compare the aims of the company to the model performance. Firstly, we have created an SVM which appears to do an adequate job of classifying these wines - this meets the first objective of the company. Secondly, the company had a number of specific aims which it wanted the model to meet (see below). 
+
+*"In particular, the company is keen for the model not to misclassify wines of lower-medium (5) quality  as higher-medium (7) quality (and vice versa) as this may result in customers being particularly overcharged for wines (and potentially dissatisfied customers) or particularly undercharged for wines (lower profits for the company)."*
+
+For this aim, $\frac{13}{335+86+13}=0.0300$ (i.e., 3%) of lower (5) quality wines were incorrectly assigned the higher (7) quality class. Likewise, $\frac{43}{43+90+130}=0.1635$ (i.e., 16%) of higher (7) quality wines were incorrectly assigned the lower (5) quality class. Overall, this suggests that using our SVM to classify these wines will meet this company aim.
+ 
+*"The company also wants to avoid wines of medium (6) and higher-medium (7) being assigned a lower quality as much as possible given this may harm profits (but is unlikely to unduly harm customer satisfaction)."*
+
+For this aim, $\frac{130+368+90}{13+71+130+86+368+90}=0.7757$ (i.e., 77.6%) of medium (6) and higher-medium (7) wines are assigned the correct (or higher) quality class meaning that company profits are unlikely to be substantially harmed by using the SVM to classify wines (and hence set their prices).
+
 
 ## Improving the SVM
 
-As we've shown from the model testing we have developed an SVM which does not do as a good job of classifying wines into different qualities as we would perhaps have hoped. As such, we may wish to further improve the model. On such approach to achieve this may be to tune the SVM with a narrow range of parameter values for cost and sigma, however we need to ensure that we are not going to overfit the model when doing this. If our aim was to simply identify whether a wine was of a 'good' or 'bad' quality, then we may wish to recode our data by classifying wines with a quality of 6 or higher as 'good' and 5 or lower as 'bad'. Rerunning the SVM with this recoded data may result in a SVM with a higher predictive ability. Another alternative choice we could make may be to only consider either red or white wines as opposed to building an SVM which attempts to accurately classify both. An additional option we might wish to explore is the use of dimensionality reduction approaches (e.g., Principal Component Analysis) on our chemical data, the use of a few core principal components may help us to remove some of the 'noise' in our data and result in a more accurate model. Overall, any attempts to improve the model are likely to represent a trade-off between many different choices. Indeed, it may be that our relatively limited dataset (~6000 data points) is inherently noisy (i.e., absence of any clear boundaries between the different wine qualities) that generating an effective SVM capable of classifying wine qualities with a high degree of accuracy may not necessarily be possible. As such, it is important to note that SVMs (like all other approaches) have conditions under which they excel, and others under which they perform relatively poorly.
+As we've shown from the model testing we have developed an SVM which broadly meets the aims of the company in classifying the qualities of wines. However, there are areas in which the model could be improved, and therefore we may wish to further improve the model. One such approach to achieve this may be to tune the SVM with a narrow range of parameter values for cost and sigma, however we need to ensure that we are not going to overfit the model when doing this. If the company altered its aims and wanted the SVM to simply identify whether a wine was of a 'higher' or 'lower' quality, then we may wish to recode our data by classifying wines with a quality of 6 or 7 as 'higher' and 5 'lower' quality. Rerunning the SVM with this recoded data may result in a SVM with a higher predictive ability. Finally, it may be that our relatively limited dataset (~6000 data points) is inherently noisy (i.e., absence of any clear boundaries between the different wine qualities) and that generating an effective SVM capable of classifying wine qualities with a higher degree of accuracy may not necessarily be possible. As such, it is important to note that SVMs (like all other approaches) have conditions under which they excel, and others under which they perform relatively poorly. As such, it may be that we would get a higher accuracy by using an alternative machine learning approach (e.g., decision trees, random forests, or KNN).
 
 
 ## Concluding remarks
 
-In this tutorial, we have build a support vector machine (SVM) which may not be as effective at classifying wines of different qualities as we would of initially hoped. However, this tutorial outlines the various different data cleaning and analysis stages which are essential for the generation of an SVM. Importantly, this tutorial illustrates the potential limitations of SVMs highlighting that they are not necessarily an appropriate approach for some datasets, although potential options for improving our SVM are also discussed. 
+In this tutorial, we have build a support vector machine (SVM) which meets the overall aims of the company. We can classify medium quality wines with a reasonable accuracy, though (importantly) we broadly meet all the specific aims of the company. In doing so, this tutorial illustrates various approaches regarding data cleaning, data processing, and dimensionality reduction, as well as the various measures which can be used to assess SVM performance. Finally, we also discuss potential options for improving our SVM.
+
 
 
 ## References

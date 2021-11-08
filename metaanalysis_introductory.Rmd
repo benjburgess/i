@@ -292,3 +292,9 @@ Lajeunesse, M. J. (2011). On the meta-analysis of response ratios for studies wi
 Lajeunesse, M.J. (2021) Squeezing data from scientific images with the juicr package for R. R package, *v.0.1. CRAN*
 
 Viechtbauer, W. (2010). Conducting meta-analyses in R with the metafor package. *Journal of Statistical Software*, 36(3), 1-48.
+
+## Links
+
+[benjburgess.github.io](https://benjburgess.github.io/)
+
+[Support Vector Machines](https://benjburgess.github.io/data/index/svm)
