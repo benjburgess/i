@@ -25,7 +25,7 @@ An [introductory tutorial for meta-analyses](https://benjburgess.github.io/i/met
 
 An [introductory tutorial for SVMs](https://benjburgess.github.io/i/SVM_linear) where `R` code is provided. The tutorial builds a simple SVM which accurately which can accurately classify two species based on physical measurements.
 
-An [advanced tutorial for SVMs](https://benjburgess.github.io/i/SVM_radial) where `R` code is provided. The tutorial utilises on an openly available dataset on wine. This example generates a SVM which attempts to classifies wines into different qualities, based on the chemical properties of the wine. 
+An [advanced tutorial for SVMs](https://benjburgess.github.io/i/SVM_radial) where `R` code is provided. The tutorial utilises on an openly available dataset on wine. This example generates a SVM which attempts to classifies wines into different qualities, based on the chemical properties of the wine. It also outlines some of the various data cleaning and management approaches which can be implemented.
 
 
 ## multiplestressR - R package
