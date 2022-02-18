@@ -46,7 +46,7 @@ The first thing that needs to be done is to install the `multiplestressR` packag
 
 
 
-```{r class.source = "bg-info", message=FALSE, warning=FALSE}
+```{r class.source="bg-info", message=FALSE, warning=FALSE}
 
 
 #install.packages("multiplestressR")
