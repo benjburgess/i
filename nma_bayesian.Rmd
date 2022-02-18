@@ -1,5 +1,5 @@
 ---
-title: "Bayesian Network Meta-analyses in R"
+title: "WINBUGS to R: Replicating a published Bayesian network meta-analysis in R"
 output:
   html_document:
     fig_caption: yes
@@ -13,7 +13,7 @@ output:
 
 [Network Meta-analyses](https://benjburgess.github.io/data/index/nma/)
 
-#WINBUGS to R: Replicating a published Bayesian network meta-analysis in R
+#Bayesian Network Meta-analyses in R
 
 Network meta-analyses (NMA) are a powerful statistical tool frequently employed in medical research. As briefly described in the overview of NMAs, there are two different types, namely frequentist or Bayesian NMAs. Here, I'm going to focus on Bayesian NMAs, I won't go into the theory surronding Bayes theroem, but there are plenty of great resources online. Likewise, I'm going to assume that you have a basic understanding of meta-analyses, although if not have a look at this [extensive resource](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/).
 
