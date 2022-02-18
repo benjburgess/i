@@ -18,7 +18,7 @@ Note that these will continue to be added over the coming weeks.
 ## Statistics, Data Modelling, and Machine Learning
 
 ### Meta-analyses
-An [introductory tutorial for meta-analyses](https://benjburgess.github.io/i/metaanalysis_introductory) where `R` code is provided. The tutorial provides a step-by-step workflow for how to conduct a meta-analysis including addressing issues with covariance, hierarchical random effects, and fixed effects.
+An [introductory tutorial for bayesian network meta-analyses](https://benjburgess.github.io/i/nma_bayesian) where `R` code is provided. The tutorial provides a step-by-step workflow for how to conduct a bayesian network meta-analysis replicating a previous bayesian network meta-analysis conducted in WINBUGS.
 
 
 ### Support Vector Machines (SVMs)
