@@ -15,25 +15,25 @@ output:
 
 #Bayesian Network Meta-analyses in R
 
-Network meta-analyses (NMA) are a powerful statistical tool frequently employed in medical research. As briefly described in the overview of NMAs, there are two different types, namely frequentist or Bayesian NMAs. Here, I'm going to focus on Bayesian NMAs, I won't go into the theory surronding Bayes theroem, but there are plenty of great resources online. Likewise, I'm going to assume that you have a basic understanding of meta-analyses, although if not have a look at this [extensive resource](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/).
+Network meta-analyses (NMA) are a powerful statistical tool frequently employed in medical research. As alluded to in the overview of NMAs, there are two different types, namely frequentist or Bayesian NMAs. Here, I'm going to focus on Bayesian NMAs, where I've written a short introductory guide to using the *gemtc* package in *R* to conduct Bayesian-NMAs. Rather than use a well-known or common dataset to showcase this approach I've decided to replicate an previously published analysis. 
 
-There are a variety of different programs which can be used to conduct NMAs.Indeed, the recently published [NICE Meta-Analysis Guideline Methodology Document](https://www.bristol.ac.uk/media-library/sites/social-community-medicine/documents/mpes/gmd-1-meta-analysis-jan2021.pdf) outlines the various different options that could be used for NMAs (as well as those which should be avoided).
-
-Here, I've written a short introductory guide to using the *gemtc* package in *R* to conduct Bayesian-NMAs. Rather than use a well-known or common dataset to showcase this approach I've decided to replicate an previously published analysis. 
-
-The recently published study by [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) uses a Bayesian-NMA to compare the effect of various sodium-glucose co-transporter inhibitors and metformin in patients with type 1 diabetes. In doing so they collate data from nine studies for the change from baseline (CFB) of HbA1c, weight, total daily insulin dose, and systolic blood pressure at two time points (24-26 weeks and 52 weeks). To analyse their data using a Bayesian-NMA the authors used the *WINBUGS* software. Accordingly, here we will replicate their analysis in *R* using the *gemtc* package and compare our results to those from the original paper. Rather than focus on all four of the metrics, we are just going to focus on the effect of the various treatments on HbA1c, although the same approach could be used for all other response metrics.
+The recently published study by [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) uses a Bayesian-NMA to compare the effect of various sodium-glucose co-transporter inhibitors and metformin in patients with type 1 diabetes (T1DM). In doing so they collate data from nine studies for the change from baseline (CFB) of HbA1c, weight, total daily insulin dose, and systolic blood pressure at two time points (24-26 weeks and 52 weeks). To analyse their data using a Bayesian-NMA the authors used the *WINBUGS* software. Accordingly, here we will replicate their analysis in *R* using the *gemtc* package and compare our results to those from the original paper. Rather than focus on all four of the metrics, we are just going to focus on the effect of the various treatments on HbA1c, although the same approach could be used for all other response metrics.
 
 In this tutorial I'm solely going to focus on the code used to conduct this analysis as opposed to the biological interpretation of the results. If you're interested in the medical implications of these results I suggest that you read the [original paper](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863)!
 
-As I mentioned above, the data we will be using here is for the CFB in HbA1c under each treatment. For these studies, the aim was for any treatment to reduce the prevalence of HbA1c. Hence, if a treatment has a beneficial effect on HbA1c, the effect size should be negative. Here, CFB in HbA1c is measured in percentage (%) and the effect sizes we have calculated are mean differences. In the original study, Langford et al. compare each treatment to either a placebo or to the standard treatment of Metformin (2000mg), accordingly in this tutorial we will replicate both of these analyses.
-
-
+As I mentioned above, the data we will be using here is for the CFB in HbA1c under each treatment. For these studies, the aim was for any treatment to reduce the level of HbA1c. Hence, if a treatment has a beneficial effect on HbA1c, the effect size should be negative. Here, CFB in HbA1c is measured in percentage (%) and the effect sizes we have calculated are mean differences. In the original study, Langford et al. compare each treatment to either a placebo or to the standard treatment of Metformin (2000mg), accordingly in this tutorial we will replicate both of these analyses.
 
 <center>
 
 ![](C:/Users/Burgess/Documents/Network_MetaAnalysis/Diabeties_Paper_Title1.png){width=60%}
 
 </center>
+
+Within this tutorial I won't go into the theory surronding Bayes theroem, but there are plenty of great resources online. Likewise, I'm going to assume that you have a basic understanding of meta-analyses, although if not have a look at this [extensive resource](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/). This tutorial will use *R* to conduct Bayesian-NMAs, however there are a variety of different programs which can be used. Indeed, the recently published [NICE Meta-Analysis Guideline Methodology Document](https://www.bristol.ac.uk/media-library/sites/social-community-medicine/documents/mpes/gmd-1-meta-analysis-jan2021.pdf) outlines the various different options that could be used for NMAs (as well as those which should be avoided).
+
+
+
+
 
 ##Packages and data
 
@@ -60,7 +60,7 @@ set.seed(36361)
 
 ```
 
-The next step is to load in the data for this analysis. [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) make this data openly available in the supplementary information of their paper which I have put into a csvs file for this analysis. As a quick check of their data, I also extracted the data from their studies myself and found that it aligned well with the data provided by [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863).
+The next step is to load in the data for this analysis. [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) make this data openly available in the supplementary information of their paper which I have put into a csv file for this analysis. As a quick check of their data, I also extracted the data from their studies myself and found that it aligned well with the data provided by [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863). From the data provided by [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863), I have calculated effect sizes (mean difference) for each treatment relative to the placebo treatment. Likewise, I have formatted the data into the format required by *gemtc*.
 
 The dataset I've loaded contains data for both time points (24-26 weeks or 52 weeks). However, we will be conducting seperate meta-analyses for each of these time points and so the data needs to be split at this point. Additionally, we will remove a couple of additional columns in the datasets which we no longer require.
 
@@ -69,6 +69,9 @@ The dataset I've loaded contains data for both time points (24-26 weeks or 52 we
 
 #load in the data for this analysis
 df <- fread("C:/Users/Burgess/Documents/Network_MetaAnalysis/Langford_2020_gemtcstyle.csv")
+
+#show the first ten rows of the dataset
+head(df, n = 6)
 
 #seperate out the dataset depending on whether the data 
 #corresponds to 24-26 or 52 weeks
@@ -105,7 +108,7 @@ We'll start by analysing the data for the 24-26 week time point. The first step 
 #create the network for the 24-26 weeks data
 network_24 <- mtc.network(data.re  = df_24)
 
-#format the treatment names for clarity
+#format the treatment names in the description component of the network
 description_names <- network_24$treatments$description
 description_names <- paste0(description_names, "mg")
 description_names <- gsub("_", " ", description_names)
@@ -196,6 +199,10 @@ Once our models have run, we can extract the Deviance Information Criterion (DIC
 mtc_24_random_DIC <- summary(mtc_24_random)$DIC[3]
 mtc_24_fixed_DIC <- summary(mtc_24_fixed)$DIC[3]
 
+mtc_24_random_DIC
+mtc_24_fixed_DIC 
+
+
 #select the best fitting model (i.e. lowest DIC values)
 if(mtc_24_random_DIC < mtc_24_fixed_DIC){
   mtc_24 <- mtc_24_random
@@ -206,9 +213,9 @@ if(mtc_24_fixed_DIC <= mtc_24_random_DIC){
 
 ```
 
-For our models, it appears as though the Bayesian-NMA which incorporates random effects is the best fitting model, hence we will use the random effects model for the rest of the analysis of the 24-26 week HbA1c data. This results matches the findings of Langford et al. who also report that their random effects model had a lower DIC compared to their fixed effects model.
+For our models, it appears as though the Bayesian-NMA which incorporates fixed effects is the best fitting model, hence we will use the fixed effects model for the rest of the analysis of the 24-26 week HbA1c data. This results matches the findings of Langford et al. who also report that their fixed effects model had a lower DIC compared to their fixed effects model.
 
-Additionally the $I^{2}$ metric for the random effects model is 0% which indicates consistency in effect sizes across the different studies.
+Additionally the $I^{2}$ metric for the fixed effects model is 0% which indicates consistency in effect sizes across the different studies.
 
 ### Trace and density plots
 
@@ -231,7 +238,7 @@ As we can see, both plots appear as we would expect, with there being no obvious
 
 ###Potential Scale Reduction Factor
 
-Another attribute of our NMA which we can assess is the Potential Scale Reduction Factor (PSRF) which compares any varitation both within and between our chains. Ideally, this value should tend to zero with an increasing number of iterations but at the very least should be close to 1 and no more 1.05. We can assess this using Gelman-Rubin plots. Although we can generate these plots for each comparison (e.g., Metformin 2000mg v Placebo, Dapagliflozin 5mg v Placebo etc.) we will again only show the comparison of Metformin 2000mg v Placebo for clarity.
+Another attribute of our NMA which we can assess is the Potential Scale Reduction Factor (PSRF) which compares any varitation both within and between our chains. Ideally, this value should be no more than 1.05 and close to 1 for the larger number of iterations. We can assess this using Gelman-Rubin plots. Although we can generate these plots for each comparison (e.g., Metformin 2000mg v Placebo, Dapagliflozin 5mg v Placebo etc.) we will again only show the comparison of Metformin 2000mg v Placebo for clarity.
 
 ```{r class.source="bg-info", message=FALSE, warning=FALSE}
 #generate the Gelman-Rubin plots for each treatment
@@ -254,7 +261,7 @@ As we can see, the value of this PSRF is very close to 1 and much less than 1.05
 
 ###Treatment rankings
 
-Given that we have now assessed various attributes of our model, we can begin to analyse the results. The first result we can consider is the ranking of our different treatments - although this was not previously reported by Langford et al.. To do this we can generate a rankogram using the following code. The interpretation of this figure is relatively straightforward. The treatment with the largest bar for rank 1 is likely to be the most effective treatment, while the largest bar for rank 2 is likely to be represent the second most effective treatment etc. 
+Given that we have now assessed various attributes of our model, we can begin to analyse the results. The first result we can consider is the ranking of our different treatments - although this was not previously reported by Langford et al. (2020). To do this we can generate a rankogram using the following code. The interpretation of this figure is relatively straightforward. The treatment with the largest bar for rank 1 is likely to be the most effective treatment, while the largest bar for rank 2 is likely to be represent the second most effective treatment etc. 
 
 ```{r class.source="bg-info", message=FALSE, warning=FALSE}
 
@@ -299,7 +306,7 @@ As we can see from our results there are some relatively strong signals apparent
 
 ###SUCRA values
 
-An additional way to rank the various treatments is to use a metric called Surface Under the Cumulative Ranking (SUCRA). As before, this produces a histogram which can be used to rank the various treatments - although this was not previously reported by Langford et al.. The code to generate a plot of SUCRA values for each treatment is as follows.
+An additional way to rank the various treatments is to use a metric called Surface Under the Cumulative Ranking (SUCRA). As before, this produces a histogram which can be used to rank the various treatments - although this was not previously reported by Langford et al. (2020). The code to generate a plot of SUCRA values for each treatment is as follows.
 
 ```{r class.source="bg-info", message=FALSE, warning=FALSE}
 
@@ -344,7 +351,7 @@ In line with the findings of the previous results, we can see that using SUCRA v
 
 ###Forest plots
 
-In their paper, Langford et al. report forest plots showcasing how the various treatments compare either to the placebo treatment or the Metformin (2000mg) treatment. As such, we can likewise generate these forest for our model and compare our results to those reported by Langford et al..
+In their paper, Langford et al. report forest plots showcasing how the various treatments compare either to the placebo treatment or the Metformin (2000mg) treatment. As such, we can likewise generate these forest for our model and compare our results to those reported by Langford et al. (2020).
 
 ####Comparison of treatments to placebo
 
@@ -401,9 +408,9 @@ forest_placebo_24_plot
 
 ```
 
-This forest plot shows the estimated effect sizes for the mean difference (%) in CFB HbA1c for each treatment relative to the placebo. Here, each effect size estimate has been determined using our random effects Bayesian-NMA, with the error bars representing the 95% credible intervals for ech effect size. Our analysis suggests that all treatments, at 24-26 weeks, led to significant reductions in HbA1c compared to the placebo treatment. However, the magnitude of any effect substantially varied between treatments. In line with the results of the rank and SUCRA analysis, the effect size for Metformin (2000mg) is substantially less (compared to the placebo) than all other treatments. Likewise the reduction in HbA1c was greatest for the higher dosage treatments of Empagliflozin (10mg, 25mg). 
+This forest plot shows the estimated effect sizes for the mean difference (%) in CFB HbA1c for each treatment relative to the placebo. Here, each effect size estimate has been determined using our fixed effects Bayesian-NMA, with the error bars representing the 95% credible intervals for ech effect size. Our analysis suggests that all treatments, at 24-26 weeks, led to significant reductions in HbA1c compared to the placebo treatment. However, the magnitude of any effect substantially varied between treatments. In line with the results of the rank and SUCRA analysis, the effect size for Metformin (2000mg) is substantially less (compared to the placebo) than all other treatments. Likewise the reduction in HbA1c was greatest for the higher dosage treatments of Empagliflozin (10mg, 25mg). 
 
-The figure we have generated here can be directly compared to Figure 3a from [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863). By comparing the figures, we can see the results of our analysis exactly align with those reported by Langford et al. (2020). 
+The figure we have generated here can be directly compared to Figure 3a from [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863). By comparing the figures, we can see the results of our analysis match those reported by Langford et al. (2020) with any minor differences likely to be due to the stochastic nature of the analysis or differences between *R* and *WINBUGS*. 
 
 
 
@@ -464,11 +471,11 @@ forest_metformin_24_plot <- ggplot(df_forest_metformin_24, aes(x=Mean,
 forest_metformin_24_plot
 ```
 
-This forest plot shows the estimated effect sizes for the mean difference (%) in CFB HbA1c for each treatment relative to Metformin (2000mg). Here, each effect size estimate has been determined using our random effects Bayesian-NMA, with the error bars representing the 95% credible intervals for ech effect size. Our analysis suggests that most treatments, at 24-26 weeks, led to significant reductions in HbA1c compared to the Metformin (2000mg) treatment. However, one exception to this was that the Metformin (2000mg) treatment was significantly better at reducing HbA1c compared to the placebo treatment. Likewise, given that the 95% credible interval for the Empagliflozin (2.5mg) treatment overlap zero, there is no statistically significant difference between the Empagliflozin (2.5mg) and Metformin (2000mg) treatments. Additionally, magnitude of any effect substantially varied between treatments, although there is substantial overlap between the credible intervals of each treatment. 
+This forest plot shows the estimated effect sizes for the mean difference (%) in CFB HbA1c for each treatment relative to Metformin (2000mg). Here, each effect size estimate has been determined using our fixed effects Bayesian-NMA, with the error bars representing the 95% credible intervals for ech effect size. Our analysis suggests that most treatments, at 24-26 weeks, led to significant reductions in HbA1c compared to the Metformin (2000mg) treatment. However, one exception to this was that the Metformin (2000mg) treatment was significantly better at reducing HbA1c compared to the placebo treatment. Likewise, given that the 95% credible interval for the Empagliflozin (2.5mg) treatment overlaps zero, there is no statistically significant difference between the Empagliflozin (2.5mg) and Metformin (2000mg) treatments. Additionally, magnitude of any effect substantially varied between treatments, although there is substantial overlap between the credible intervals of each treatment. 
 
-The figure we have generated here can be directly compared to Figure 4a from [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863). By comparing the figures, we can see the results of our analysis exactly align with those reported by Langford et al. (2020). 
+The figure we have generated here can be directly compared to Figure 4a from [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863). By comparing the figures, we can see the results of our analysis match those reported by Langford et al. (2020) with any minor differences likely to be due to the stochastic nature of the analysis or differences between *R* and *WINBUGS*. 
 
-Importantly, we can interpret these results in line with the network plot we generated earlier. As we can see, with the exception of the placebo treatment, there are no direct comparisons between Metformin (2000mg) and any other treatment. Accordingly, as noted by Langford et al., this means that all of the reported effect sizes are generated from indirect comparisons and as such are potentially liable to bias. This is an important when interpretting these results. 
+Importantly, we can interpret these results in line with the network plot we generated earlier. As we can see, with the exception of the placebo treatment, there are no direct comparisons between Metformin (2000mg) and any other treatment. Accordingly, as noted by Langford et al., this means that all of the reported effect sizes are generated from indirect comparisons and as such are potentially liable to bias. This is an important consideration when interpretting these results. 
 
 
 
@@ -486,7 +493,7 @@ Firstly, we create the network for the 52 week data, provide thorough descriptio
 #create the network for the 52 week data
 network_52 <- mtc.network(data.re  = df_52)
 
-#format the treatment names for clarity
+#format the treatment names in the description component of the network
 description_names <- network_52$treatments$description
 description_names <- paste0(description_names, "mg")
 description_names <- gsub("_", " ", description_names)
@@ -565,6 +572,9 @@ Here, we will extract the DIC values and use them to determine the best fitting 
 mtc_52_random_DIC <- summary(mtc_52_random)$DIC[3]
 mtc_52_fixed_DIC <- summary(mtc_52_fixed)$DIC[3]
 
+mtc_52_random_DIC
+mtc_52_fixed_DIC 
+
 #select the best fitting model (i.e. lowest DIC values)
 if(mtc_52_random_DIC < mtc_52_fixed_DIC){
   mtc_52 <- mtc_52_random
@@ -575,9 +585,9 @@ if(mtc_52_fixed_DIC < mtc_52_random_DIC){
 
 ```
 
-As with the 24-26 week data, the best fitting NMA was the random effects model which had a lower DIC than the fixed effects NMA. Again, this mirrors the findings of Langford et al. (2020).
+As with the 24-26 week data, the best fitting NMA was the fixed effects model which had a lower DIC than the random effects NMA. Again, this mirrors the findings of Langford et al. (2020).
 
-Additionally the $I^{2}$ metric for the random effects model is 0% which indicates consistency in effect sizes across the different studies.
+Additionally the $I^{2}$ metric for the fixed effects model is 0% which indicates consistency in effect sizes across the different studies.
 
 
 ### Trace and density plots
@@ -593,7 +603,7 @@ plot(mtc_52$samples[,5])
 
 ```
 
-As before, there are no trends in the trace plot and our density plot shows a gaussian distribution. These, attributes indicate that our NMA is acting as expected.
+As before, there are no trends in the trace plot and our density plot shows a gaussian distribution. These attributes indicate that our NMA is acting as expected.
 
 ###Potential Scale Reduction Factor
 
@@ -703,12 +713,12 @@ sucra_52_plot <- ggplot(df_sucra_plot_52, aes(x=Treatment, y=SUCRA, fill=Treatme
 sucra_52_plot
 ```
 
-The results of this figure closely align with the conclusions of the rankogram, with the same treatments being identified as being either the most (Empagliflozin 25mg, 10mg) or least (Placebo, Metformin 2000mg) effective.
+The results of this figure closely align with the conclusions of the rankogram, with the same treatments being identified as being either the most (Empagliflozin 25mg, 10mg) or least (Placebo, Metformin 2000mg) effective at reducing HbA1c.
 
 
 ###Forest plots
 
-In their paper, Langford et al. report forest plots showcasing how the various treatments compare either to the placebo treatment or the Metformin (2000mg) treatment. As such, we can likewise generate these forest for our model and compare our results to those reported by Langford et al..
+In their paper, Langford et al. report forest plots showcasing how the various treatments compare either to the placebo treatment or the Metformin (2000mg) treatment at 52 weeks. As such, we can likewise generate these forest for our model and compare our results to those reported by Langford et al. (2020).
 
 ####Comparison of treatments to placebo
 
@@ -765,15 +775,19 @@ forest_placebo_52_plot
 
 ```
 
-This forest plot shows the estimated effect sizes, for the 52 week data, for the mean difference (%) in CFB HbA1c for each treatment relative to the placebo. Here, each effect size estimate has been determined using our random effects Bayesian-NMA, with the error bars representing the 95% credible intervals for ech effect size. Our analysis suggests that all treatments (except for Metformin 2000mg), at 52 weeks, led to significant reductions in HbA1c compared to the placebo treatment. Firslty, our results suggest that there is no significant difference between the Metformin (2000mg) and placebo groups, a finding which contrasts the results for the 24-26 week data. Interesting, the magnitude of the effects for each treatment at 52 weeks appear to be less than those at 24-26 weeks. Additionally, there is substantial overlap between the 95% credible intervals for each treatment (aside from Metformin 2000mg). 
+This forest plot shows the estimated effect sizes, for the 52 week data, for the mean difference (%) in CFB HbA1c for each treatment relative to the placebo. Here, each effect size estimate has been determined using our fixed effects Bayesian-NMA, with the error bars representing the 95% credible intervals for each effect size. Our analysis suggests that all treatments (except for Metformin 2000mg), at 52 weeks, led to significant reductions in HbA1c compared to the placebo treatment. Firslty, our results suggest that there is no significant difference between the Metformin (2000mg) and placebo groups, a finding which contrasts the results for the 24-26 week data. Interesting, the magnitude of the effects for each treatment at 52 weeks appear to be less than those at 24-26 weeks. Additionally, there is substantial overlap between the 95% credible intervals for each treatment (aside from Metformin 2000mg). 
 
 
-Again, the figure we have generated here can be directly compared to Figure 3a from Langford et al. (2020). By comparing the figures, we can see the results of our analysis exactly align with those reported by Langford et al. (2020).
+Again, the figure we have generated here can be directly compared to Figure 3a from Langford et al. (2020). By comparing the figures, we can see the results of our analysis match those reported by Langford et al. (2020) with any minor differences likely to be due to the stochastic nature of the analysis or differences between *R* and *WINBUGS*. 
+
 
 
 
 
 ####Comparison of treatments to Metformin (2000mg)
+
+As before, we can also generate a forest plot showing the effect sizes (mean difference) in CFB HbA1c (%) for each treatment in comparison to the Metformin (2000mg) treatment. This can be done using the following code.
+
 ```{r class.source="bg-info", message=FALSE, warning=FALSE}
 
 #extract the summary information where we calculate the mean difference in HbAc1 for each treatment relative to the Metformin treatment
@@ -824,9 +838,9 @@ forest_metformin_52_plot <- ggplot(df_forest_metformin_52, aes(x=Mean,
 forest_metformin_52_plot
 ```
 
-This forest plot shows the estimated effect sizes for the mean difference (%) in CFB HbA1c for each treatment relative to Metformin (2000mg) at 52 weeks. Here, each effect size estimate has been determined using our random effects Bayesian-NMA, with the error bars representing the 95% credible intervals for ech effect size. Our analysis suggests that all treatments (bar one) led to significant reductions in HbA1c compared to the Metformin (2000mg) treatment. As with the 24-26 week data, the single exception to this was that there was no significant difference between the placebo treatment and Metformin (2000mg) treatment illustrated by 95% credible interval for the placebo treatment overlapping zero. The magnitude of any effect substantially varied between treatments, although there is substantial overlap between the credible intervals of each treatment.
+This forest plot shows the estimated effect sizes for the mean difference (%) in CFB HbA1c for each treatment relative to Metformin (2000mg) at 52 weeks. Here, each effect size estimate has been determined using our fixed effects Bayesian-NMA, with the error bars representing the 95% credible intervals for each effect size. Our analysis suggests that all treatments (bar one) led to significant reductions in HbA1c compared to the Metformin (2000mg) treatment. As with the 24-26 week data, the single exception to this was that there was no significant difference between the placebo treatment and Metformin (2000mg) treatment illustrated by 95% credible interval for the placebo treatment overlapping zero. The magnitude of any effect substantially varied between treatments, although there is substantial overlap between the credible intervals of each treatment.
 
-The figure we have generated here can be directly compared to Figure 4a from Langford et al. (2020). By comparing the figures, we can see the results of our analysis exactly align with those reported by Langford et al. (2020).
+The figure we have generated here can be directly compared to Figure 4a from Langford et al. (2020). By comparing the figures, we can see the results of our analysis match those reported by Langford et al. (2020) with any minor differences likely to be due to the stochastic nature of the analysis or differences between *R* and *WINBUGS*. 
 
 Importantly, all comparisons with the Metformin (2000mg) treatment (aside from the placebo) are indirect (in line with the 24-26 week analysis). As noted by Langford et al. (2020), all of these effect sizes are derived solely from indirect comparisons to the metformin (2000mg) treatment and hence potentially liable to bias.
 
@@ -855,7 +869,7 @@ combined_forest_placebo_plot <- (forest_placebo_24_plot / forest_placebo_52_plot
 combined_forest_placebo_plot
 ```
 
-As before, the results shown in this figure exactly align to those shown in Figure 3a from Langford et al. (2020).
+As before, the results shown in this figure match those shown in Figure 3a from Langford et al. (2020).
 
 
 
@@ -879,7 +893,7 @@ combined_forest_metformin_plot <- (forest_metformin_24_plot / forest_metformin_5
 combined_forest_metformin_plot
 ```
 
-As before, the results shown in this figure exactly align to those shown in Figure 4a from Langford et al. (2020).
+As before, the results shown in this figure match those shown in Figure 4a from Langford et al. (2020).
 
 ## Concluding remarks
 
