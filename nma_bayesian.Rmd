@@ -37,7 +37,7 @@ Within this tutorial I won't go into the theory surronding Bayes theroem, but th
 
 ##Packages and data
 
-To start our analysis we first need to load the various packages we will be using in our analysis. Additionally, we will set the seed so that our analysis will be exactly reproducible.
+To start our analysis we first need to load the various packages we will be using. Additionally, we will set the seed so that our analysis will be exactly reproducible.
 
 ```{r class.source="bg-info", message=FALSE, warning=FALSE}
 
@@ -60,7 +60,7 @@ set.seed(36361)
 
 ```
 
-The next step is to load in the data for this analysis. [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) make this data openly available in the supplementary information of their paper which I have put into a csv file for this analysis. As a quick check of their data, I also extracted the data from their studies myself and found that it aligned well with the data provided by [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863). From the data provided by [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863), I have calculated effect sizes (mean difference) for each SGLT inhibitor treatment relative to the placebo treatment. Likewise, I have formatted the data into the format required by *gemtc*.
+[Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) make their data openly available in the supplementary information of their paper which I have put into a csv file for this analysis. As a quick check of their data, I also extracted the data from their studies myself and found that it aligned well with the data provided by [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863). From the data provided by [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863), I have calculated effect sizes (mean difference) for each SGLT inhibitor treatment relative to the placebo treatment. Likewise, I have formatted the data into the format required by *gemtc*.
 
 The dataset I've loaded contains data for both time points (24-26 weeks or 52 weeks). However, we will be conducting seperate meta-analyses for each of these time points and so the data needs to be split at this point. Additionally, we will remove a couple of additional columns in the datasets which we no longer require.
 
@@ -102,7 +102,7 @@ node_weights_52 <- subset(node_weights, Time == 52)$Total
 
 ## HbA1c Analysis: 24-26 week data
 
-We'll start by analysing the data for the 24-26 week time point. The first step we need to do is generate the network for our dataset which is done using the *mtc.network* function in the *gemtc* package. The output of this function produces our network which contains a variety of data. At this point we will edit the description of each of our treatments in our network. We'll do this as it makes any output more professional looking and easier to read.
+We'll start by analysing the data for the 24-26 week time point. The first step we need to do is generate the network for our dataset which is done using the *mtc.network* function in the *gemtc* package. The output of this function produces our network which contains a variety of data. At this point we will edit the description of each of our treatments in our network. We'll do this as it makes any output clearer and easier to read.
 
 ```{r class.source="bg-info", message=FALSE, warning=FALSE}
 #create the network for the 24-26 weeks data
@@ -177,7 +177,7 @@ model_24_fixed <- mtc.model(network_24,
 
 ```
 
-As we have now specified our settings, we can run both our fixed and random effects models. Here, the main thing to note is that I have specified the burnin (60000) and iterations (140000) for our Bayesian-NMAs. These parameter values were chosen to mirror those selected by Langford et al. in their original analysis. Likewise, I have specified an identity link function and normal likelihood for both models, again mirroring those setting chosen by Langford et al. (2020) in their orignial analysis.
+As we have now specified our settings, we can run both our fixed and random effects models. Here, the main thing to note is that I have specified the burnin (60000) and iterations (140000) for our Bayesian-NMAs. These parameter values were chosen to mirror those selected by Langford et al. in their original analysis. Likewise, I have specified an identity link function and normal likelihood for both models, again mirroring those settings chosen by Langford et al. (2020) in their orignial analysis.
 
 ```{r class.source="bg-info", message=FALSE, warning=FALSE}
 #run the bayesian network meta-analysis for the random effects model
@@ -256,7 +256,7 @@ gelman.diag(mtc_24)$mpsrf
 
 ```
 
-As we can see, the value of this PSRF is very close to 1 and much less than 1.05.
+As we can see, the value of this PSRF is very close to 1.
 
 
 ###Treatment rankings
@@ -351,7 +351,7 @@ In line with the findings of the previous results, we can see that using SUCRA v
 
 ###Forest plots
 
-In their paper, Langford et al. report forest plots showcasing how the various SGLT inhibitor treatments compare either to the placebo treatment or the Metformin (2000mg) treatment. As such, we can likewise generate these forest for our model and compare our results to those reported by Langford et al. (2020).
+In their paper, Langford et al. report forest plots showcasing how the various SGLT inhibitor treatments compare either to the placebo treatment or the Metformin (2000mg) treatment. As such, we can likewise generate these forest for our NMA and compare our results to those reported by Langford et al. (2020).
 
 ####Comparison of treatments to placebo
 
@@ -625,7 +625,7 @@ gelman.diag(mtc_52)$mpsrf
 
 ```
 
-As we can see, the value of this PSRF is very close to 1 and much less than 1.05.
+As we can see, the value of this PSRF is very close to 1.
 
 ###Treatment rankings
 
@@ -775,7 +775,7 @@ forest_placebo_52_plot
 
 ```
 
-This forest plot shows the estimated effect sizes, for the 52 week data, for the mean difference (%) in CFB HbA1c for each treatment relative to the placebo. Here, each effect size estimate has been determined using our fixed effects Bayesian-NMA, with the error bars representing the 95% credible intervals for each effect size. Our analysis suggests that all treatments (except for Metformin 2000mg), at 52 weeks, led to significant reductions in HbA1c compared to the placebo treatment. Firslty, our results suggest that there is no significant difference between the Metformin (2000mg) and placebo groups, a finding which contrasts the results for the 24-26 week data. Interesting, the magnitude of the effects for each treatment at 52 weeks appear to be less than those at 24-26 weeks. Additionally, there is substantial overlap between the 95% credible intervals for each treatment (aside from Metformin 2000mg). 
+This forest plot shows the estimated effect sizes, for the 52 week data, for the mean difference (%) in CFB HbA1c for each treatment relative to the placebo. Here, each effect size estimate has been determined using our fixed effects Bayesian-NMA, with the error bars representing the 95% credible intervals for each effect size. Our analysis suggests that all treatments (except for Metformin 2000mg), at 52 weeks, led to significant reductions in HbA1c compared to the placebo treatment. Firslty, our results suggest that there is no significant difference between the Metformin (2000mg) and placebo groups, a finding which contrasts the results for the 24-26 week data. Interestingly, the magnitude of the effects for each treatment at 52 weeks appear to be less than those at 24-26 weeks. Additionally, there is substantial overlap between the 95% credible intervals for each treatment (aside from Metformin 2000mg). 
 
 
 Again, the figure we have generated here can be directly compared to Figure 3a from Langford et al. (2020). By comparing the figures, we can see the results of our analysis match those reported by Langford et al. (2020) with any minor differences likely to be due to the stochastic nature of the analysis or differences between *R* and *WINBUGS*. 
@@ -846,7 +846,7 @@ Importantly, all comparisons with the Metformin (2000mg) treatment (aside from t
 
 ##Combined HbA1c Forest Plots
 
-Figures 3a and 4a in Langford et al. (2020) combine the forest plots of the 24-26 week and 52 week Bayesian-NMAs. Accordingly, this can be done for  our analysis using the code. 
+Figures 3a and 4a in Langford et al. (2020) combine the forest plots of the 24-26 week and 52 week Bayesian-NMAs. Accordingly, this can be done for  our analysis using the below code. 
 
 ### Comparison of treatments to the placebo
 
@@ -901,9 +901,9 @@ In this tutorial, we have provided an introduction to Bayesian-NMAs using a real
 
 Here, we have solely focussed on conducting a Bayesian-NMA for data (at 24-26 and 52 weeks) on HbA1c (a measurement of glycated haemoglobin). Based on our findings, it appears as though SGLT inhibitors may reduce HbA1c to a greater extent than the placebo or Metformin treatments. Indeed, higher doses of Empagliflozin (10mg / 25mg) appear to be particularly effective at reducing HbA1c (relative to either the placebo or Metformin treatments) at both time points. However, as noted above and by [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) only indirect comparisons can be made between the Metformin and SGLT inhibitor treatments meaning that these comparisons are potentially subjected to bias.
 
-Within this tutorial we have solely considered on metric (CFB in HbA1c). However, [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) consider several other primary metrics (weight, total daily insulin dose, and systolic blood pressure). Indeed, each of the considered SGLT inhibitor treatments is unlikely to affect a single metric (e.g., HbA1c) in isolation, therefore it is imperative that the effect of each treatment on multiple metrics is considered. Additionally, consideration of various safety outcomes for each treatment is also important. For instance, a SGLT inhibitor treatment may effectively reduce a metric of interest but also induce unwanted or potentially dangerous side effects. [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) additionally analyse the safety outcomes for a range of adverse events including hypoglycaemia and diabetic ketoacidosis. Indeed, in their analysis of safety outcomes, [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) highlight that (depsite its apparent efficacy in reducing HbA1c) Sotagliflozin use may be associated with an increased prevalence of diabetic ketacidosis, a finding corroborated by previous analyses. 
+Within this tutorial we have solely considered one metric (CFB in HbA1c). However, [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) consider several other primary metrics (weight, total daily insulin dose, and systolic blood pressure). Indeed, each of the considered SGLT inhibitor treatments is unlikely to affect a single metric (e.g., HbA1c) in isolation, therefore it is imperative that the effect of each treatment on multiple metrics is considered. Additionally, consideration of various safety outcomes for each treatment is also important. For instance, a SGLT inhibitor treatment may effectively reduce a metric of interest but also induce unwanted or potentially dangerous side effects. [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) additionally analyse the safety outcomes for a range of adverse events including hypoglycaemia and diabetic ketoacidosis. Indeed, in their analysis of safety outcomes, [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) highlight that (depsite its apparent efficacy in reducing HbA1c) Sotagliflozin use may be associated with an increased prevalence of diabetic ketoacidosis, a finding supported by previous analyses. 
 
-From a meta-analytical perspective, there are additional model attributes that could be tested that we have not done so here. For instance, inconsistency in the NMA is phenomena which should be considered. Here, the relatively simple network structure with few links between treatments means that there are no comparisons which can be assessed for inconsistency. Indeed, any attempts to model inconsistency using the *mtc.nodesplit* function in *gemtc* fail for this reason. However, if there is the potential for inconsistency to occur in a network then it should definitely be considered.
+From a meta-analytical perspective, there are additional statistical attributes that could be explored. For instance, inconsistency in an NMA could be considered. Here, the relatively simple network structure with few links between treatments means that there are no comparisons which can be assessed for inconsistency. Indeed, any attempts to model inconsistency using the *mtc.nodesplit* function in *gemtc* fail (for our NMA) for this reason. However, if there is the potential for inconsistency to occur in a network then analysis of inconsistency should be conducted.
 
 Overall, this tutorial has attempted to provide an introduction to conducting Bayesian-NMAs in R using a real-world medical dataset. Hopefully this has been informative and outlined the various steps and approaches that need to be taken to conduct a statistically robust NMA in R!
 
