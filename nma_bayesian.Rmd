@@ -177,7 +177,7 @@ model_24_fixed <- mtc.model(network_24,
 
 ```
 
-As we have now specified our settings, we can run both our fixed and random effects models. Here, the main thing to note is that I have specified the burnin (60000) and iterations (140000) for our Bayesian-NMAs. These parameter values were chosen to mirror those selected by Langford et al. in their original analysis.
+As we have now specified our settings, we can run both our fixed and random effects models. Here, the main thing to note is that I have specified the burnin (60000) and iterations (140000) for our Bayesian-NMAs. These parameter values were chosen to mirror those selected by Langford et al. in their original analysis. Likewise, I have specified an identity link function and normal likelihood for both models, again mirroring those setting chosen by Langford et al. (2020) in their orignial analysis.
 
 ```{r class.source="bg-info", message=FALSE, warning=FALSE}
 #run the bayesian network meta-analysis for the random effects model
@@ -551,7 +551,7 @@ model_52_fixed <- mtc.model(network_52,
 
 ```
 
-We can run the Bayesian-NMAs using the following code, which again uses the same burnin period and number of iterations as that specfied by Langford et al. (2020).
+We can run the Bayesian-NMAs using the following code, which again uses the same burnin period, number of iterations, link function, and likelihood as that specfied by Langford et al. (2020). 
 
 ```{r class.source="bg-info", message=FALSE, warning=FALSE}
 #run the bayesian network meta-analysis for the random effects model
@@ -903,7 +903,7 @@ Here, we have solely focussed on conducting a Bayesian-NMA for data (at 24-26 an
 
 While these patterns appear to hold for both time periods, it is important to note that there is considerable overlap of the 95% credible intervals between the various treatments at 52 weeks. Likewise, there is substantial overlap between the credible intervals of each treatment when compared to Metformin (2000mg). Importantly, all treatment comparisons to Metformin (aside from the Placebo treatment) are indirect comparisons and (as noted by Langford et al.) are potentially subjected to bias. As such, any interpretation of these results should carefully consider the effect of this potential bias.
 
-Within this tutorial we have solely considered on metric (CFB in HbA1c). However, [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) consider several other primary metrics (weight, total daily insulin dose, and systolic blood pressure). Indeed, each of the considered SGLT treatments is unlikely to affect a single metric (e.g., HbA1c) in isolation, therefore it is imperative that the effect of each treatment on multiple metrics is considered. Additionally, consideration of various safety outcomes for each treatment is also important. For instance, a SGLT treatment may effectively reduce a metric of interest but also induce unwanted or potentially dangerous side effects. [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) additionally analyse the safety outcomes of both hypoglycaemia and diabetic ketoacidosis adverse events. Indeed, in their analysis of these safety outcomes, [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) highlight safety concerns surronding the use of Sotagliflozin despite its apparent efficacy in reducing HbA1c, a finding corroborated by previous analyses. 
+Within this tutorial we have solely considered on metric (CFB in HbA1c). However, [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) consider several other primary metrics (weight, total daily insulin dose, and systolic blood pressure). Indeed, each of the considered SGLT treatments is unlikely to affect a single metric (e.g., HbA1c) in isolation, therefore it is imperative that the effect of each treatment on multiple metrics is considered. Additionally, consideration of various safety outcomes for each treatment is also important. For instance, a SGLT treatment may effectively reduce a metric of interest but also induce unwanted or potentially dangerous side effects. [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) additionally analyse the safety outcomes for a range of adverse events including hypoglycaemia and diabetic ketoacidosis. Indeed, in their analysis of safety outcomes, [Langford et al. (2020)](https://dom-pubs.onlinelibrary.wiley.com/doi/10.1111/dom.13863) highlight safety concerns surronding the use of Sotagliflozin despite its apparent efficacy in reducing HbA1c, a finding corroborated by previous analyses. 
 
 From a meta-analytical perspective, there are additional model attributes that could be tested that we have not done so here. For instance, inconsistency in the NMA is phenomena which should be considered. Here, the relatively simple network structure with few links between treatments means that there are no comparisons which can be assessed for inconsistency. Indeed, any attempts to model inconsistency using the *mtc.nodesplit* function in *gemtc* fail for this reason. However, if there is the potential for inconsistency to occur in a network then it should definitely be considered.
 
